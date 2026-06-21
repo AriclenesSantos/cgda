@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { studios, getGamesByStudio } from "@/data/studios";
+import { studioImages } from "@/data/images";
 
 export default function StudiosSection() {
   return (
@@ -31,9 +32,17 @@ export default function StudiosSection() {
                   to={`/estudio/${s.id}`}
                   className="clip-corner relative flex h-full flex-col overflow-hidden border border-border bg-surface p-6 transition-all duration-300 hover:border-primary/60"
                 >
+                  {/* Studio image background */}
+                  <img
+                    src={studioImages[s.id]}
+                    alt={s.name}
+                    loading="lazy"
+                    className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-40 transition-all duration-700 group-hover:opacity-70 group-hover:scale-105"
+                  />
+                  <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-surface via-surface/85 to-surface/40" />
                   {/* Glow on hover */}
                   <div className="pointer-events-none absolute -inset-px -z-10 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/10" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/15" />
                   </div>
                   {/* Index ribbon */}
                   <div className="flex items-start justify-between">
