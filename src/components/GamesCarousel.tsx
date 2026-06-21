@@ -3,6 +3,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Gamepad2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { games, getStudioById, type Game } from "@/data/studios";
+import { gameImages } from "@/data/images";
 import { SectionHeader } from "./StudiosSection";
 
 const filters = ["Todos", "Lançado", "Em Desenvolvimento"] as const;
@@ -82,20 +83,17 @@ export function GameCard({ game }: { game: Game }) {
       className="group relative block overflow-hidden border border-border bg-surface transition-all duration-300 hover:border-primary/60 hover-lift"
     >
       <div className="relative aspect-[4/5] overflow-hidden">
-        {/* Procedural game cover */}
-        <div
-          className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
-          style={{
-            backgroundImage: `linear-gradient(135deg, hsl(${
-              hashHue(game.id)
-            } 70% 18%) 0%, hsl(${hashHue(game.id) + 30} 80% 8%) 70%, #000 100%)`,
-          }}
+        {/* Game cover */}
+        <img
+          src={gameImages[game.id]}
+          alt={game.name}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,42,61,0.25),transparent_60%)]" />
-        <div className="absolute inset-0 bg-grid opacity-20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-grid opacity-10 mix-blend-overlay" />
 
-        <Gamepad2 className="absolute right-4 top-4 h-8 w-8 text-white/15 transition-all group-hover:text-primary/70 group-hover:scale-110" />
+        <Gamepad2 className="absolute right-4 top-4 h-8 w-8 text-white/30 transition-all group-hover:text-primary group-hover:scale-110 drop-shadow-lg" />
 
         {/* Status pill */}
         <div

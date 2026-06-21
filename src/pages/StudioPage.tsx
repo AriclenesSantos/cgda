@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import { SectionHeader } from "@/components/StudiosSection";
 import { GameCard } from "@/components/GamesCarousel";
 import { getStudioById, getGamesByStudio, type Game } from "@/data/studios";
+import { studioImages, gameImages } from "@/data/images";
 
 const StudioPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,8 +46,14 @@ const StudioPage = () => {
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border">
           <div className="absolute inset-0 -z-10">
-            <div className="absolute inset-0 bg-grid opacity-40" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,hsl(354_100%_50%_/_0.25),transparent_60%)]" />
+            <img
+              src={studioImages[studio.id]}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+            <div className="absolute inset-0 bg-grid opacity-30" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,hsl(354_100%_50%_/_0.35),transparent_60%)]" />
           </div>
           <div className="container py-16">
             <Link
@@ -167,16 +174,13 @@ function GameDetailCard({ game }: { game: Game }) {
   return (
     <div className="group flex flex-col border border-border bg-surface transition-colors hover:border-primary/60">
       <div className="relative aspect-video overflow-hidden border-b border-border">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `linear-gradient(135deg, hsl(${
-              (game.id.length * 53) % 360
-            } 70% 16%) 0%, #000 100%)`,
-          }}
+        <img
+          src={gameImages[game.id]}
+          alt={game.name}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-grid opacity-20" />
-        <Gamepad2 className="absolute inset-0 m-auto h-12 w-12 text-white/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-surface/80 via-transparent to-transparent" />
         <span
           className={`absolute left-3 top-3 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] ${
             released ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
