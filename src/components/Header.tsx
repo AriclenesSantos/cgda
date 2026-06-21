@@ -1,103 +1,132 @@
-import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Menu, X, Gamepad2 } from "lucide-react";
 
-const navItems = [
-  { label: "Início", path: "/" },
-  { label: "Sobre", path: "/sobre" },
+const nav = [
+  { to: "/", label: "Início" },
+  { to: "/#estudios", label: "Estúdios" },
+  { to: "/#jogos", label: "Jogos" },
+  { to: "/#eventos", label: "Eventos" },
+  { to: "/sobre", label: "Sobre" },
 ];
 
-const Header = () => {
-  const location = useLocation();
+export default function Header() {
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => setOpen(false), [pathname]);
+
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "border-b border-primary/20 bg-background/90 backdrop-blur-xl shadow-lg shadow-primary/5"
-          : "bg-transparent"
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled ? "bg-background/85 backdrop-blur-md border-b border-border/60" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex items-center justify-between px-4 py-4">
+      <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="group flex items-center gap-3">
-          <motion.img
-            src="/logo-cgda.png"
-            alt="CGDA Logo"
-            className="h-10 w-10 rounded-lg"
-            whileHover={{ rotate: 10, scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          />
-          <span className="text-xl font-black uppercase tracking-[0.2em] text-gradient-neon">
-            CGDA
-          </span>
+          <div className="relative h-10 w-10 overflow-hidden rounded-md bg-surface ring-1 ring-border">
+            <img src="/logo-cgda.png" alt="CGDA" className="h-full w-full object-contain p-1" />
+            <span className="pointer-events-none absolute inset-0 rounded-md ring-1 ring-primary/0 transition-all group-hover:ring-primary/60" />
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="font-display text-xl tracking-widest text-foreground">CGDA</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Game Dev Angola
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-8 sm:flex">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className="relative py-2 text-sm font-semibold uppercase tracking-widest transition-colors"
-              >
-                <span className={isActive ? "text-secondary" : "text-muted-foreground hover:text-foreground"}>
+        <nav className="hidden items-center gap-1 md:flex">
+          {nav.map((item) => {
+            const base =
+              "relative px-4 py-2 font-display text-sm uppercase tracking-[0.18em] transition-colors";
+            if (item.to.includes("#")) {
+              return (
+                <a
+                  key={item.to}
+                  href={item.to}
+                  className={`${base} text-muted-foreground hover:text-foreground`}
+                >
                   {item.label}
-                </span>
-                {isActive && (
-                  <motion.div
-                    layoutId="nav-underline"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-secondary"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-              </Link>
+                </a>
+              );
+            }
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === "/"}
+                className={({ isActive }) =>
+                  `${base} ${
+                    isActive
+                      ? "text-foreground after:absolute after:inset-x-4 after:bottom-0 after:h-0.5 after:bg-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
             );
           })}
         </nav>
 
-        {/* Mobile hamburger */}
+        <div className="hidden md:block">
+          <a
+            href="#jogos"
+            className="clip-tab inline-flex items-center gap-2 bg-ember px-5 py-2.5 font-display text-sm uppercase tracking-[0.18em] text-white shadow-ember transition-transform hover:scale-[1.03]"
+          >
+            <Gamepad2 className="h-4 w-4" />
+            Explorar
+          </a>
+        </div>
+
         <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="sm:hidden text-foreground"
+          onClick={() => setOpen((v) => !v)}
+          className="grid h-10 w-10 place-items-center rounded-md border border-border bg-surface md:hidden"
+          aria-label="Menu"
         >
-          {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Mobile menu */}
-      {menuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="border-t border-border/50 bg-background/95 backdrop-blur-xl sm:hidden"
-        >
-          <nav className="container mx-auto flex flex-col gap-4 px-4 py-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setMenuOpen(false)}
-                className="text-sm font-semibold uppercase tracking-widest text-muted-foreground hover:text-secondary transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </motion.div>
+      {open && (
+        <div className="border-t border-border bg-background md:hidden">
+          <div className="container flex flex-col py-4">
+            {nav.map((item) =>
+              item.to.includes("#") ? (
+                <a
+                  key={item.to}
+                  href={item.to}
+                  className="px-2 py-3 font-display text-base uppercase tracking-[0.18em] text-muted-foreground"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === "/"}
+                  className={({ isActive }) =>
+                    `px-2 py-3 font-display text-base uppercase tracking-[0.18em] ${
+                      isActive ? "text-primary" : "text-muted-foreground"
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              )
+            )}
+          </div>
+        </div>
       )}
     </header>
   );
-};
-
-export default Header;
+}
