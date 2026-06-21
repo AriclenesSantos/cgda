@@ -1,142 +1,115 @@
 import { Link } from "react-router-dom";
-import { motion, useMotionValue, useTransform } from "framer-motion";
-import { studios } from "@/data/studios";
+import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { useRef } from "react";
+import { studios, getGamesByStudio } from "@/data/studios";
 
-const neonColors = [
-  "from-primary/30 to-accent/20",
-  "from-secondary/30 to-primary/20",
-  "from-accent/30 to-secondary/20",
-  "from-secondary/30 to-accent/20",
-  "from-primary/30 to-secondary/20",
-  "from-accent/30 to-primary/20",
-  "from-secondary/30 to-primary/20",
-  "from-primary/30 to-accent/20",
-  "from-accent/30 to-secondary/20",
-];
-
-const borderGlows = [
-  "hover:glow-red",
-  "hover:glow-cyan",
-  "hover:glow-purple",
-  "hover:glow-cyan",
-  "hover:glow-red",
-  "hover:glow-purple",
-  "hover:glow-cyan",
-  "hover:glow-red",
-  "hover:glow-purple",
-];
-
-function TiltCard({ children, className, glow }: { children: React.ReactNode; className?: string; glow: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-100, 100], [8, -8]);
-  const rotateY = useTransform(x, [-100, 100], [-8, 8]);
-
-  const handleMouse = (e: React.MouseEvent) => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    x.set(e.clientX - rect.left - rect.width / 2);
-    y.set(e.clientY - rect.top - rect.height / 2);
-  };
-
-  const handleLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
+export default function StudiosSection() {
   return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouse}
-      onMouseLeave={handleLeave}
-      style={{ rotateX, rotateY, transformPerspective: 800 }}
-      className={`${className} ${glow} transition-shadow duration-500`}
-    >
-      {children}
-    </motion.div>
-  );
-}
+    <section id="estudios" className="relative py-24">
+      <div className="container">
+        <SectionHeader
+          eyebrow="01 · Estúdios"
+          title="Quem está a construir"
+          subtitle="Estúdios angolanos a fazer história — do mobile ao Steam."
+        />
 
-const StudiosSection = () => {
-  return (
-    <section className="relative py-28 noise-overlay">
-      <div className="absolute inset-0 cyber-grid opacity-50" />
-      <div className="container relative z-10 mx-auto px-4">
-        {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-16 text-center"
-        >
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-secondary">
-            // os criadores
-          </p>
-          <h2 className="text-4xl font-black uppercase tracking-wider text-gradient-neon sm:text-5xl">
-            Estúdios
-          </h2>
-          <div className="mx-auto mt-4 h-1 w-20 bg-gradient-neon rounded-full" />
-        </motion.div>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {studios.map((studio, i) => (
-            <motion.div
-              key={studio.id}
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.07 }}
-            >
-              <TiltCard glow={borderGlows[i % borderGlows.length]} className="h-full">
+        {/* Bento grid: 1 destaque grande + restantes em grelha */}
+        <div className="mt-12 grid auto-rows-[minmax(180px,_auto)] grid-cols-1 gap-4 md:grid-cols-6">
+          {studios.map((s, i) => {
+            const count = getGamesByStudio(s.id).length;
+            const featured = i === 0;
+            return (
+              <motion.div
+                key={s.id}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.45, delay: (i % 6) * 0.05 }}
+                className={`group relative ${featured ? "md:col-span-3 md:row-span-2" : "md:col-span-2"}`}
+              >
                 <Link
-                  to={`/estudio/${studio.id}`}
-                  className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/30 bg-card/80 backdrop-blur-sm"
+                  to={`/estudio/${s.id}`}
+                  className="clip-corner relative flex h-full flex-col overflow-hidden border border-border bg-surface p-6 transition-all duration-300 hover:border-primary/60"
                 >
-                  {/* Gradient header */}
-                  <div className={`h-32 bg-gradient-to-br ${neonColors[i % neonColors.length]} relative overflow-hidden`}>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <motion.span
-                        className="text-6xl"
-                        whileHover={{ scale: 1.3, rotate: 10 }}
-                        transition={{ type: "spring", stiffness: 200 }}
-                      >
-                        {studio.emoji}
-                      </motion.span>
-                    </div>
-                    {/* Corner accent */}
-                    <div className="absolute right-0 top-0 h-12 w-12 bg-gradient-to-bl from-secondary/20 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent" />
+                  {/* Glow on hover */}
+                  <div className="pointer-events-none absolute -inset-px -z-10 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/10" />
+                  </div>
+                  {/* Index ribbon */}
+                  <div className="flex items-start justify-between">
+                    <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                      Studio · {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="grid h-9 w-9 place-items-center rounded-full border border-border bg-background/50 text-muted-foreground transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                      <ArrowUpRight className="h-4 w-4" />
+                    </span>
                   </div>
 
-                  {/* Content */}
-                  <div className="flex flex-1 flex-col p-5">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-xl font-black uppercase tracking-wide text-foreground group-hover:text-gradient-neon transition-all duration-300">
-                        {studio.name}
-                      </h3>
-                      <ArrowUpRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:text-secondary group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </div>
-                    <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
-                      {studio.description}
+                  <div className="mt-auto pt-6">
+                    <h3
+                      className={`font-display uppercase leading-none text-foreground ${
+                        featured ? "text-5xl md:text-6xl" : "text-3xl md:text-4xl"
+                      }`}
+                    >
+                      {s.name}
+                    </h3>
+                    <p
+                      className={`mt-3 text-muted-foreground ${
+                        featured ? "max-w-md text-base" : "text-sm line-clamp-2"
+                      }`}
+                    >
+                      {s.description}
                     </p>
-                    <div className="mt-4 flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse-neon" />
-                      <span className="text-xs font-semibold uppercase tracking-wider text-secondary">
-                        Ver projetos
+
+                    <div className="mt-5 flex items-center gap-4 border-t border-border pt-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                      <span>
+                        <span className="text-primary font-semibold">{count}</span> projeto{count !== 1 ? "s" : ""}
+                      </span>
+                      <span className="h-3 w-px bg-border" />
+                      <span className="text-foreground/70 group-hover:text-primary transition-colors">
+                        Ver perfil →
                       </span>
                     </div>
                   </div>
+
+                  {/* Corner accent */}
+                  <div className="absolute right-0 top-0 h-12 w-12 stripes opacity-60" />
                 </Link>
-              </TiltCard>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
   );
-};
+}
 
-export default StudiosSection;
+export function SectionHeader({
+  eyebrow,
+  title,
+  subtitle,
+  actions,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-6 border-b border-border pb-6">
+      <div>
+        <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-primary">
+          <span className="h-px w-8 bg-primary" />
+          {eyebrow}
+        </div>
+        <h2 className="mt-3 font-display text-4xl uppercase tracking-wide sm:text-5xl md:text-6xl">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="mt-3 max-w-xl text-sm text-muted-foreground md:text-base">{subtitle}</p>
+        )}
+      </div>
+      {actions}
+    </div>
+  );
+}

@@ -1,147 +1,144 @@
-import { motion } from "framer-motion";
+import { useCallback, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Gamepad2 } from "lucide-react";
-import { games, studios } from "@/data/studios";
-import { Badge } from "@/components/ui/badge";
+import { ChevronLeft, ChevronRight, Gamepad2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { games, getStudioById, type Game } from "@/data/studios";
+import { SectionHeader } from "./StudiosSection";
 
-const gameColors = [
-  "from-primary/30 via-accent/10 to-secondary/20",
-  "from-secondary/30 via-primary/10 to-accent/20",
-  "from-accent/30 via-secondary/10 to-primary/20",
-  "from-primary/20 via-secondary/20 to-accent/30",
-  "from-secondary/20 via-accent/20 to-primary/30",
-];
+const filters = ["Todos", "Lançado", "Em Desenvolvimento"] as const;
 
-const GamesCarousel = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: "start",
-    loop: true,
-    slidesToScroll: 1,
-    dragFree: true,
-  });
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
+export default function GamesCarousel() {
+  const [filter, setFilter] = useState<(typeof filters)[number]>("Todos");
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true });
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
-  useEffect(() => {
-    if (!emblaApi) return;
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
-    emblaApi.on("select", onSelect);
-    return () => { emblaApi.off("select", onSelect); };
-  }, [emblaApi]);
+  const filtered = games.filter((g) => filter === "Todos" || g.status === filter);
 
   return (
-    <section className="relative py-28">
-      {/* Background accent */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
-
-      <div className="container relative z-10 mx-auto px-4">
-        <div className="mb-14 flex items-end justify-between">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-primary">
-              // catálogo
-            </p>
-            <h2 className="text-4xl font-black uppercase tracking-wider text-gradient-fire sm:text-5xl">
-              Jogos
-            </h2>
-            <div className="mt-4 h-1 w-20 bg-gradient-to-r from-primary to-accent rounded-full" />
-          </motion.div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={scrollPrev}
-              className="flex h-12 w-12 items-center justify-center rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all hover:neon-border-red hover:glow-red"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={scrollNext}
-              className="flex h-12 w-12 items-center justify-center rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm transition-all hover:neon-border-red hover:glow-red"
-            >
-              <ArrowRight className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
-        <div ref={emblaRef} className="overflow-hidden">
-          <div className="flex gap-6">
-            {games.map((game, i) => {
-              const studio = studios.find((s) => s.id === game.studioId);
-              return (
-                <motion.div
-                  key={game.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.03 }}
-                  className="min-w-[300px] max-w-[300px] shrink-0"
-                >
-                  <motion.div
-                    whileHover={{ y: -8, scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="group h-full overflow-hidden rounded-xl border border-border/30 bg-card/80 backdrop-blur-sm transition-shadow duration-500 hover:glow-red"
+    <section id="jogos" className="relative py-24">
+      <div className="container">
+        <SectionHeader
+          eyebrow="02 · Catálogo"
+          title="Jogos angolanos"
+          subtitle="Cada jogo abaixo foi feito por angolanos, para o mundo."
+          actions={
+            <div className="flex items-center gap-3">
+              <div className="hidden gap-1 md:flex">
+                {filters.map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`px-3 py-1.5 font-display text-xs uppercase tracking-[0.18em] transition-colors ${
+                      filter === f
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-border bg-surface text-muted-foreground hover:text-foreground"
+                    }`}
                   >
-                    {/* Game thumbnail */}
-                    <div className={`relative h-44 bg-gradient-to-br ${gameColors[i % gameColors.length]} overflow-hidden`}>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Gamepad2 className="h-12 w-12 text-foreground/10 transition-transform duration-500 group-hover:scale-125 group-hover:text-foreground/20" />
-                      </div>
-                      {/* Scan line effect on hover */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/5 to-transparent animate-pulse" />
-                      </div>
-                      <div className="absolute right-3 top-3">
-                        <Badge
-                          className={
-                            game.status === "Lançado"
-                              ? "border-0 bg-primary/90 text-primary-foreground font-bold uppercase text-[10px] tracking-wider"
-                              : "border-0 bg-secondary/90 text-secondary-foreground font-bold uppercase text-[10px] tracking-wider"
-                          }
-                        >
-                          {game.status}
-                        </Badge>
-                      </div>
-                      {/* Bottom neon line */}
-                      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={scrollPrev}
+                  className="grid h-10 w-10 place-items-center border border-border bg-surface text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                  aria-label="Anterior"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={scrollNext}
+                  className="grid h-10 w-10 place-items-center border border-border bg-surface text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                  aria-label="Próximo"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          }
+        />
 
-                    <div className="p-5">
-                      <h3 className="text-base font-black uppercase tracking-wide text-foreground group-hover:text-gradient-neon transition-all duration-300">
-                        {game.name}
-                      </h3>
-                      <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-secondary/70">
-                        {studio?.name} · {game.genre}
-                      </p>
-                      <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                        {game.description}
-                      </p>
-                      <div className="mt-4 flex flex-wrap gap-1.5">
-                        {game.platform.map((p) => (
-                          <span
-                            key={p}
-                            className="rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
-                          >
-                            {p}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              );
-            })}
+        <div ref={emblaRef} className="mt-10 overflow-hidden">
+          <div className="flex gap-5">
+            {filtered.map((g) => (
+              <div key={g.id} className="min-w-[280px] max-w-[280px] shrink-0 sm:min-w-[320px] sm:max-w-[320px]">
+                <GameCard game={g} />
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </section>
   );
-};
+}
 
-export default GamesCarousel;
+export function GameCard({ game }: { game: Game }) {
+  const studio = getStudioById(game.studioId);
+  const released = game.status === "Lançado";
+  return (
+    <Link
+      to={`/estudio/${game.studioId}`}
+      className="group relative block overflow-hidden border border-border bg-surface transition-all duration-300 hover:border-primary/60 hover-lift"
+    >
+      <div className="relative aspect-[4/5] overflow-hidden">
+        {/* Procedural game cover */}
+        <div
+          className="absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+          style={{
+            backgroundImage: `linear-gradient(135deg, hsl(${
+              hashHue(game.id)
+            } 70% 18%) 0%, hsl(${hashHue(game.id) + 30} 80% 8%) 70%, #000 100%)`,
+          }}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,42,61,0.25),transparent_60%)]" />
+        <div className="absolute inset-0 bg-grid opacity-20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+
+        <Gamepad2 className="absolute right-4 top-4 h-8 w-8 text-white/15 transition-all group-hover:text-primary/70 group-hover:scale-110" />
+
+        {/* Status pill */}
+        <div
+          className={`absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${
+            released
+              ? "bg-primary text-primary-foreground"
+              : "bg-accent text-accent-foreground"
+          }`}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-current animate-ember-pulse" />
+          {released ? "Lançado" : "Em Dev"}
+        </div>
+
+        {/* Bottom content */}
+        <div className="absolute inset-x-0 bottom-0 p-5">
+          <span className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+            {studio?.name}
+          </span>
+          <h3 className="mt-1 font-display text-2xl uppercase leading-none tracking-wide text-foreground">
+            {game.name}
+          </h3>
+          <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{game.description}</p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            <span className="border border-border bg-background/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-foreground/80">
+              {game.genre}
+            </span>
+            {game.platform.slice(0, 2).map((p) => (
+              <span
+                key={p}
+                className="border border-border bg-background/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function hashHue(s: string) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h % 360;
+}
