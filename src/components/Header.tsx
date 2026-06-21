@@ -46,23 +46,34 @@ export default function Header() {
 
         <nav className="hidden items-center gap-1 md:flex">
           {nav.map((item) => {
-            const isHash = item.to.includes("#");
-            const Comp: any = isHash ? "a" : NavLink;
-            const props: any = isHash
-              ? { href: item.to }
-              : { to: item.to, end: item.to === "/" };
+            const base =
+              "relative px-4 py-2 font-display text-sm uppercase tracking-[0.18em] transition-colors";
+            if (item.to.includes("#")) {
+              return (
+                <a
+                  key={item.to}
+                  href={item.to}
+                  className={`${base} text-muted-foreground hover:text-foreground`}
+                >
+                  {item.label}
+                </a>
+              );
+            }
             return (
-              <Comp
+              <NavLink
                 key={item.to}
-                {...props}
-                className={({ isActive }: { isActive?: boolean }) =>
-                  `relative px-4 py-2 font-display text-sm uppercase tracking-[0.18em] transition-colors ${
-                    isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                to={item.to}
+                end={item.to === "/"}
+                className={({ isActive }) =>
+                  `${base} ${
+                    isActive
+                      ? "text-foreground after:absolute after:inset-x-4 after:bottom-0 after:h-0.5 after:bg-primary"
+                      : "text-muted-foreground hover:text-foreground"
                   }`
                 }
               >
                 {item.label}
-              </Comp>
+              </NavLink>
             );
           })}
         </nav>
