@@ -1,64 +1,74 @@
+# 🔐 Sistema de Perfis de Estúdios com Autenticação
 
-
-# 🎮 Site da Comunidade Game Dev Angola (CGDA)
-
-## Visão Geral
-Site vitrine da comunidade de desenvolvimento de jogos em Angola, apresentando os estúdios e seus jogos com um design vibrante baseado nas cores do logotipo (vermelho, laranja/âmbar e preto).
+## Objetivo
+Cada estúdio terá uma conta (email + senha) para editar suas informações, jogos, fotos e atualizar dados em tempo real no site.
 
 ---
 
-## 🎨 Design e Identidade Visual
-- **Paleta de cores**: Vermelho (#C41E3A), Laranja/Âmbar (#D4842A), Preto, Branco/Cinza claro
-- **Logotipo** do CGDA no header
-- **Estilo**: Moderno, gaming, com gradientes vermelhos e laranja, fundo escuro, cards com efeitos hover
-- **Animações**: Transições suaves, efeitos de hover nos cards dos jogos
+## 🛠️ Infraestrutura (Lovable Cloud)
+Vou ativar o **Lovable Cloud** para fornecer:
+- Autenticação (email/senha)
+- Base de dados PostgreSQL (estúdios + jogos)
+- Storage para upload de imagens (logos e capas)
 
 ---
 
-## 📄 Páginas
+## 🗄️ Estrutura de Dados
 
-### 1. Página Principal (Home)
-- **Hero Section**: Banner grande com o logo CGDA, nome da comunidade e descrição ("Criada em 2021, +120 membros")
-- **Seção Estúdios**: Grid de cards com os 8 estúdios listados (Mac Studio, AD Games Angola, Kiala Games, Hydra Games, Robot Games, IZIZI Studios, Cgstuff Studio, Luk3D) — cada card clicável levando à página do estúdio
-- **Catálogo de Jogos**: Carrossel horizontal com todos os jogos angolanos (Aventuras da GLX, Sou Angolano e Conheço Angola, Zungueira Run, Slash Boom, Palanquinha, Invasão 24 de Outubro, Burrinho, Missão Resgate, Bitter Belief, Mbora Acertar, Projeto S3.6, AutoSpeed, e mais)
-- **Seção Eventos**: Lista dos eventos da comunidade (Concurso Nacional de Jogos Digitais, AD Game JAM, Global Game Jam, UMA Game JAM, Angola Game Show) e eventos internacionais
+### Tabela `studios`
+- `id`, `slug`, `name`, `tagline`, `description`, `location`, `founded`, `website`, `logo_url`, `owner_id` (→ auth.users)
 
-### 2. Página Individual do Estúdio
-- Header com nome e logo do estúdio
-- Descrição do estúdio
-- **Galeria dinâmica** dos projetos em formato carrossel com screenshots dos jogos
-- Cards de cada jogo com: nome, descrição, screenshots, links (Google Play, itch.io, Steam, etc.)
-- Status do projeto (Lançado / Em Desenvolvimento)
+### Tabela `games`
+- `id`, `studio_id`, `title`, `description`, `status` (released/in-dev), `platforms[]`, `cover_url`, `links` (jsonb), `order`
 
-### 3. Página "Sobre a Comunidade"
-- História da CGDA (fundada em 2021)
-- Missão e objetivos
-- Estatísticas (+120 membros)
+### Tabela `user_roles`
+- Para distinguir admin/studio_owner (boa prática de segurança)
+
+### Storage Bucket `studio-assets`
+- Logos de estúdios e capas de jogos (público para leitura, autenticado para escrita pelo dono)
 
 ---
 
-## 🕹️ Dados dos Jogos (extraídos do catálogo)
-Todos os jogos do catálogo serão incluídos com suas descrições, links e screenshots:
-- **Aventuras da GLX** (Mac Studio) — Jogo educativo, aliens invadem Angola
-- **Sou Angolano e Conheço Angola** — Quiz sobre cultura angolana
-- **Zungueira Run** — Endless Runner 3D com a zungueira
-- **Slash Boom** — Corte de frutas angolanas
-- **Palanquinha O Jogo** — Runner pelas ruas de Luanda
-- **Invasão 24 de Outubro** — Jogo de tiro espacial
-- **Burrinho** — Jogo de palavras clássico
-- **Missão Resgate** — Plataforma 2D Pixel Art
-- **Bitter Belief** — Metroidvania (Steam)
-- **Mbora Acertar** — Quiz de cultura geral
-- **Projeto S3.6** (Kiala Games) — Jogo de tiro
-- **AutoSpeed** (Hydra Games) — Jogo de corrida
-- E outros jogos diversos (T'Leva, Onde Está o Katutu, Oceano Cibernético, Crônicas de Nzinga, Safe Driving, etc.)
+## 🔑 Contas Criadas Automaticamente
+Vou criar uma conta para cada um dos 9 estúdios existentes, com senhas geradas, e mostrar a lista no chat:
+
+```
+mac-studio@cgda.ao        | senha-gerada
+bantu-games@cgda.ao       | senha-gerada
+hydra-games@cgda.ao       | senha-gerada
+... (todos os 9)
+```
+
+Cada estúdio poderá depois alterar email e senha no painel.
 
 ---
 
-## ⚙️ Implementação Técnica
-- Site estático com dados embutidos no código (sem necessidade de backend)
-- React + TypeScript com React Router para navegação entre páginas
-- Carrosséis com Embla Carousel (já instalado)
-- Design responsivo para mobile e desktop
-- Imagens placeholder representativas para os jogos (as screenshots do PDF serão referenciadas onde possível)
+## 🖥️ Páginas e Componentes Novos
 
+1. **Botão "Login"** no Header (canto superior direito)
+2. **`/auth`** — página de login (email + senha)
+3. **`/dashboard`** — painel do estúdio autenticado:
+   - Editar dados do estúdio (nome, descrição, logo, website…)
+   - Listar/criar/editar/eliminar jogos
+   - Upload de imagens (logo e capas)
+4. **`/account`** — alterar email e senha
+5. Páginas públicas (`/studios/:slug`) passam a ler da base de dados em vez do ficheiro estático
+
+---
+
+## 🔒 Segurança
+- RLS ativado em todas as tabelas
+- Cada estúdio só pode editar o seu próprio registo e os seus jogos
+- Leitura pública (qualquer visitante vê os perfis)
+- Storage com políticas por `owner_id`
+
+---
+
+## 📋 Etapas
+1. Ativar Lovable Cloud
+2. Criar schema (tabelas + RLS + bucket + grants)
+3. Migrar os dados estáticos atuais para a base de dados
+4. Criar as 9 contas e associar cada uma ao seu estúdio
+5. Implementar `/auth`, `/dashboard`, `/account` + botão Login
+6. Ligar páginas públicas à base de dados
+7. Entregar a lista de credenciais no chat
