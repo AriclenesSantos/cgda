@@ -1,0 +1,4 @@
+project_id = "cgda"
+
+[functions.seed-studios]
+verify_jwt = false

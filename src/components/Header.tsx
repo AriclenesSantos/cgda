@@ -1,6 +1,7 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X, Gamepad2 } from "lucide-react";
+import { Menu, X, Gamepad2, LogIn, LayoutDashboard } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 const nav = [
   { to: "/", label: "Início" },
@@ -14,6 +15,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -78,9 +80,24 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-2 md:flex">
+          {user ? (
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-2 border border-border bg-surface px-4 py-2 font-display text-xs uppercase tracking-[0.22em] text-foreground hover:border-primary hover:text-primary"
+            >
+              <LayoutDashboard className="h-4 w-4" /> Painel
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 border border-border bg-surface px-4 py-2 font-display text-xs uppercase tracking-[0.22em] text-foreground hover:border-primary hover:text-primary"
+            >
+              <LogIn className="h-4 w-4" /> Entrar
+            </Link>
+          )}
           <a
-            href="#jogos"
+            href="/#jogos"
             className="clip-tab inline-flex items-center gap-2 bg-ember px-5 py-2.5 font-display text-sm uppercase tracking-[0.18em] text-white shadow-ember transition-transform hover:scale-[1.03]"
           >
             <Gamepad2 className="h-4 w-4" />
