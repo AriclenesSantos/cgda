@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import { studios, getGamesByStudio } from "@/data/studios";
-import { studioImages } from "@/data/images";
+import { useStudios, useGames, studioCover } from "@/lib/catalog";
 
 export default function StudiosSection() {
+  const { studios } = useStudios();
+  const { games } = useGames();
+  const countFor = (id: string) => games.filter((g) => g.studio_id === id).length;
+
   return (
     <section id="estudios" className="relative py-24">
       <div className="container">
@@ -14,10 +17,9 @@ export default function StudiosSection() {
           subtitle="Estúdios angolanos a fazer história — do mobile ao Steam."
         />
 
-        {/* Bento grid: 1 destaque grande + restantes em grelha */}
         <div className="mt-12 grid auto-rows-[minmax(180px,_auto)] grid-cols-1 gap-4 md:grid-cols-6">
           {studios.map((s, i) => {
-            const count = getGamesByStudio(s.id).length;
+            const count = countFor(s.id);
             const featured = i === 0;
             return (
               <motion.div
@@ -32,19 +34,16 @@ export default function StudiosSection() {
                   to={`/estudio/${s.id}`}
                   className="clip-corner relative flex h-full flex-col overflow-hidden border border-border bg-surface p-6 transition-all duration-300 hover:border-primary/60"
                 >
-                  {/* Studio image background */}
                   <img
-                    src={studioImages[s.id]}
+                    src={studioCover(s)}
                     alt={s.name}
                     loading="lazy"
                     className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-40 transition-all duration-700 group-hover:opacity-70 group-hover:scale-105"
                   />
                   <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-surface via-surface/85 to-surface/40" />
-                  {/* Glow on hover */}
                   <div className="pointer-events-none absolute -inset-px -z-10 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/15" />
                   </div>
-                  {/* Index ribbon */}
                   <div className="flex items-start justify-between">
                     <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-foreground">
                       Studio · {String(i + 1).padStart(2, "0")}
@@ -55,19 +54,11 @@ export default function StudiosSection() {
                   </div>
 
                   <div className="mt-auto pt-6">
-                    <h3
-                      className={`font-display uppercase leading-none text-foreground ${
-                        featured ? "text-5xl md:text-6xl" : "text-3xl md:text-4xl"
-                      }`}
-                    >
+                    <h3 className={`font-display uppercase leading-none text-foreground ${featured ? "text-5xl md:text-6xl" : "text-3xl md:text-4xl"}`}>
                       {s.name}
                     </h3>
-                    <p
-                      className={`mt-3 text-muted-foreground ${
-                        featured ? "max-w-md text-base" : "text-sm line-clamp-2"
-                      }`}
-                    >
-                      {s.description}
+                    <p className={`mt-3 text-muted-foreground ${featured ? "max-w-md text-base" : "text-sm line-clamp-2"}`}>
+                      {s.tagline || s.description}
                     </p>
 
                     <div className="mt-5 flex items-center gap-4 border-t border-border pt-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -81,7 +72,6 @@ export default function StudiosSection() {
                     </div>
                   </div>
 
-                  {/* Corner accent */}
                   <div className="absolute right-0 top-0 h-12 w-12 stripes opacity-60" />
                 </Link>
               </motion.div>
@@ -94,15 +84,9 @@ export default function StudiosSection() {
 }
 
 export function SectionHeader({
-  eyebrow,
-  title,
-  subtitle,
-  actions,
+  eyebrow, title, subtitle, actions,
 }: {
-  eyebrow: string;
-  title: string;
-  subtitle?: string;
-  actions?: React.ReactNode;
+  eyebrow: string; title: string; subtitle?: string; actions?: React.ReactNode;
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-6 border-b border-border pb-6">
@@ -111,9 +95,7 @@ export function SectionHeader({
           <span className="h-px w-8 bg-primary" />
           {eyebrow}
         </div>
-        <h2 className="mt-3 font-display text-4xl uppercase tracking-wide sm:text-5xl md:text-6xl">
-          {title}
-        </h2>
+        <h2 className="mt-3 font-display text-4xl uppercase tracking-wide sm:text-5xl md:text-6xl">{title}</h2>
         {subtitle && (
           <p className="mt-3 max-w-xl text-sm text-muted-foreground md:text-base">{subtitle}</p>
         )}
