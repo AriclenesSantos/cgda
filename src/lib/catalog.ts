@@ -57,7 +57,7 @@ export function useGames(studioId?: string) {
     if (studioId) q = q.eq("studio_id", studioId);
     q.then(({ data }) => {
       if (!alive) return;
-      setData((data as GameRow[]) ?? []);
+      setData((data as unknown as GameRow[]) ?? []);
       setLoading(false);
     });
     return () => { alive = false; };
