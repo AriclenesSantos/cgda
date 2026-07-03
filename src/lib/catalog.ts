@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { studioImages, gameImages } from "@/data/images";
 
 export interface StudioRow {
@@ -48,6 +49,21 @@ export function useStudios() {
   return { studios: data, loading };
 }
 
+export type GameLink = { label: string; url: string };
+
+function normalizeLinks(raw: Tables<"games">["links"]): GameLink[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (l): l is GameLink =>
+      !!l && typeof l === "object" && "label" in l && "url" in l &&
+      typeof (l as GameLink).label === "string" && typeof (l as GameLink).url === "string"
+  );
+}
+
+function toGameRow(r: Tables<"games">): GameRow {
+  return { ...r, links: normalizeLinks(r.links) };
+}
+
 export function useGames(studioId?: string) {
   const [data, setData] = useState<GameRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +73,7 @@ export function useGames(studioId?: string) {
     if (studioId) q = q.eq("studio_id", studioId);
     q.then(({ data }) => {
       if (!alive) return;
-      setData((data as unknown as GameRow[]) ?? []);
+      setData((data ?? []).map(toGameRow));
       setLoading(false);
     });
     return () => { alive = false; };
