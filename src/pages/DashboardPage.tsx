@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadStudioAsset, studioCover, gameCover, type GameRow, type StudioRow } from "@/lib/catalog";
 import { toast } from "sonner";
+import { translateError } from "@/lib/i18n-errors";
 
 export default function DashboardPage() {
   const { user, studioId, loading, signOut } = useAuth();
@@ -111,7 +112,7 @@ function ProfileTab({ studio, onSaved }: { studio: StudioRow; onSaved: () => voi
       logo_url: form.logo_url,
     }).eq("id", studio.id);
     setSaving(false);
-    if (error) { toast.error("Erro ao salvar: " + error.message); return; }
+    if (error) { toast.error("Erro ao salvar: " + translateError(error)); return; }
     toast.success("Perfil atualizado.");
     onSaved();
   }
@@ -123,7 +124,7 @@ function ProfileTab({ studio, onSaved }: { studio: StudioRow; onSaved: () => voi
       const url = await uploadStudioAsset(studio.id, f, "logo");
       setForm((s) => ({ ...s, logo_url: url }));
       toast.success("Imagem enviada. Lembre-se de salvar.");
-    } catch (err: any) { toast.error("Falha no upload: " + (err.message ?? err)); }
+    } catch (err: any) { toast.error("Falha no upload: " + translateError(err)); }
     finally { setUploading(false); }
   }
 
@@ -177,7 +178,7 @@ function GamesTab({ studioId, games, onChange }: { studioId: string; games: Game
   async function remove(id: string) {
     if (!confirm("Apagar este jogo?")) return;
     const { error } = await supabase.from("games").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error)); return; }
     toast.success("Jogo apagado.");
     onChange();
   }
@@ -246,7 +247,7 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
       const url = await uploadStudioAsset(studioId, f, "game", id);
       setForm((s) => ({ ...s, cover_url: url }));
       toast.success("Imagem enviada.");
-    } catch (err: any) { toast.error("Falha: " + (err.message ?? err)); }
+    } catch (err: any) { toast.error("Falha: " + translateError(err)); }
     finally { setUploading(false); }
   }
 
@@ -271,7 +272,7 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
       ({ error } = await supabase.from("games").insert({ id, studio_id: studioId, ...payload }));
     }
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error)); return; }
     toast.success(game ? "Jogo atualizado." : "Jogo criado.");
     onSaved();
   }
@@ -342,7 +343,7 @@ function AccountTab({ currentEmail }: { currentEmail: string }) {
     setBusyE(true);
     const { error } = await supabase.auth.updateUser({ email });
     setBusyE(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error)); return; }
     toast.success("Email atualizado. Verifique a caixa de entrada para confirmar.");
   }
   async function updatePassword(e: FormEvent) {
@@ -352,7 +353,7 @@ function AccountTab({ currentEmail }: { currentEmail: string }) {
     setBusyP(true);
     const { error } = await supabase.auth.updateUser({ password });
     setBusyP(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(translateError(error)); return; }
     setPassword(""); setConfirm("");
     toast.success("Senha atualizada.");
   }

@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { translateError } from "@/lib/i18n-errors";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { LogIn, Loader2 } from "lucide-react";
@@ -18,7 +19,7 @@ export default function LoginPage() {
     setLoading(true); setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) { setError("Credenciais inválidas. Verifique o email e a senha."); return; }
+    if (error) { setError(translateError(error)); return; }
     navigate(loc.state?.from ?? "/dashboard", { replace: true });
   }
 
