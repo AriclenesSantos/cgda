@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadStudioAsset, studioCover, gameCover, type GameRow, type StudioRow } from "@/lib/catalog";
 import { toast } from "sonner";
+import { translateError } from "@/lib/i18n-errors";
 
 export default function DashboardPage() {
   const { user, studioId, loading, signOut } = useAuth();
