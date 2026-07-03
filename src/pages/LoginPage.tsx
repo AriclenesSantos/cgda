@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true); setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) { setError("Credenciais inválidas. Verifique o email e a senha."); return; }
+    if (error) { setError(translateError(error)); return; }
     navigate(loc.state?.from ?? "/dashboard", { replace: true });
   }
 
