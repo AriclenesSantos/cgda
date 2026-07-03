@@ -141,6 +141,29 @@ export default function Header() {
                 </NavLink>
               )
             )}
+            <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+              {user ? (
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center justify-center gap-2 border border-border bg-surface px-4 py-3 font-display text-xs uppercase tracking-[0.22em] text-foreground"
+                >
+                  <LayoutDashboard className="h-4 w-4" /> Painel
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  className="inline-flex items-center justify-center gap-2 border border-border bg-surface px-4 py-3 font-display text-xs uppercase tracking-[0.22em] text-foreground"
+                >
+                  <LogIn className="h-4 w-4" /> Entrar
+                </Link>
+              )}
+              <a
+                href="/#jogos"
+                className="clip-tab inline-flex items-center justify-center gap-2 bg-ember px-5 py-3 font-display text-sm uppercase tracking-[0.18em] text-white shadow-ember"
+              >
+                <Gamepad2 className="h-4 w-4" /> Explorar
+              </a>
+            </div>
           </div>
         </div>
       )}
