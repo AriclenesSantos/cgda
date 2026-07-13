@@ -3,14 +3,65 @@
 @tailwind utilities;
 
 @layer base {
+  /* === Tema claro (padrão) === */
   :root {
-    /* === Crimson Arena palette ===
-       60% background (#050507 / #0B0B0E), 30% surfaces (#161618 / #1F1F23),
-       10% accents (crimson #FF2A3D + ember #FF8A1F) */
-    --background: 240 14% 3%;          /* #050507 */
-    --foreground: 30 15% 94%;          /* warm off-white */
+    --background: 30 20% 97%;
+    --foreground: 240 14% 8%;
 
-    --surface: 240 6% 9%;              /* #161618 */
+    --surface: 30 15% 93%;
+    --surface-2: 30 15% 88%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 14% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 14% 8%;
+
+    --primary: 354 100% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 354 78% 38%;
+
+    --accent: 28 100% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --secondary: 30 15% 90%;
+    --secondary-foreground: 240 14% 8%;
+
+    --muted: 30 15% 92%;
+    --muted-foreground: 240 6% 40%;
+
+    --destructive: 0 84% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 10% 82%;
+    --input: 30 10% 86%;
+    --ring: 354 100% 48%;
+
+    --radius: 0.5rem;
+
+    --gradient-ember: linear-gradient(135deg, hsl(354 100% 50%) 0%, hsl(20 100% 50%) 100%);
+    --gradient-fade: linear-gradient(180deg, hsl(30 20% 97% / 0) 0%, hsl(30 20% 97% / 0.85) 70%, hsl(30 20% 97%) 100%);
+    --gradient-radial: radial-gradient(circle at 50% 0%, hsl(354 100% 50% / 0.10), transparent 60%);
+
+    --shadow-ember: 0 8px 32px -8px hsl(354 100% 50% / 0.35);
+    --shadow-card: 0 4px 24px -8px hsl(240 14% 20% / 0.15);
+    --shadow-lift: 0 24px 60px -20px hsl(354 100% 50% / 0.25);
+
+    --sidebar-background: 30 15% 95%;
+    --sidebar-foreground: 240 14% 8%;
+    --sidebar-primary: 354 100% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 15% 90%;
+    --sidebar-accent-foreground: 240 14% 8%;
+    --sidebar-border: 30 10% 82%;
+    --sidebar-ring: 354 100% 48%;
+  }
+
+  /* === Tema escuro (Crimson Arena) === */
+  .dark {
+    --background: 240 14% 3%;
+    --foreground: 30 15% 94%;
+
+    --surface: 240 6% 9%;
     --surface-2: 240 6% 13%;
     --card: 240 6% 9%;
     --card-foreground: 30 15% 94%;
@@ -18,11 +69,11 @@
     --popover: 240 8% 6%;
     --popover-foreground: 30 15% 94%;
 
-    --primary: 354 100% 58%;           /* #FF2A3D crimson */
+    --primary: 354 100% 58%;
     --primary-foreground: 0 0% 100%;
     --primary-deep: 354 78% 42%;
 
-    --accent: 28 100% 56%;             /* #FF8A1F ember */
+    --accent: 28 100% 56%;
     --accent-foreground: 240 14% 3%;
 
     --secondary: 240 6% 13%;
@@ -38,9 +89,6 @@
     --input: 240 6% 14%;
     --ring: 354 100% 58%;
 
-    --radius: 0.5rem;
-
-    /* Gradients & shadows */
     --gradient-ember: linear-gradient(135deg, hsl(354 100% 58%) 0%, hsl(20 100% 52%) 100%);
     --gradient-fade: linear-gradient(180deg, hsl(240 14% 3% / 0) 0%, hsl(240 14% 3% / 0.85) 70%, hsl(240 14% 3%) 100%);
     --gradient-radial: radial-gradient(circle at 50% 0%, hsl(354 100% 58% / 0.18), transparent 60%);
@@ -67,6 +115,8 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Barlow', system-ui, sans-serif;
     font-weight: 400;
+  }
+  .dark body {
     background-image:
       radial-gradient(ellipse 80% 50% at 50% -10%, hsl(354 100% 50% / 0.10), transparent 60%),
       radial-gradient(ellipse 60% 40% at 90% 100%, hsl(28 100% 50% / 0.05), transparent 60%);
@@ -78,13 +128,13 @@
     line-height: 1;
   }
   ::selection {
-    background: hsl(354 100% 58% / 0.4);
-    color: hsl(30 15% 98%);
+    background: hsl(var(--primary) / 0.35);
+    color: hsl(var(--primary-foreground));
   }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: hsl(240 14% 4%); }
-  ::-webkit-scrollbar-thumb { background: hsl(240 6% 16%); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(354 100% 58% / 0.6); }
+  ::-webkit-scrollbar-track { background: hsl(var(--background)); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.6); }
 }
 
 @layer utilities {
@@ -101,8 +151,8 @@
   .bg-ember { background-image: var(--gradient-ember); }
   .bg-grid {
     background-image:
-      linear-gradient(hsl(240 6% 14%) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(240 6% 14%) 1px, transparent 1px);
+      linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
     background-size: 48px 48px;
     mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 30%, transparent 80%);
   }
@@ -111,9 +161,8 @@
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-lift { box-shadow: var(--shadow-lift); }
 
-  .ring-ember { box-shadow: 0 0 0 1px hsl(354 100% 58% / 0.4), 0 0 24px hsl(354 100% 58% / 0.25); }
+  .ring-ember { box-shadow: 0 0 0 1px hsl(var(--primary) / 0.4), 0 0 24px hsl(var(--primary) / 0.25); }
 
-  /* Angular clipped corner — gaming/military aesthetic */
   .clip-corner {
     clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
   }
@@ -121,18 +170,15 @@
     clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px));
   }
 
-  /* Diagonal stripe overlay */
   .stripes {
     background-image: repeating-linear-gradient(
       135deg,
       transparent 0 8px,
-      hsl(354 100% 58% / 0.06) 8px 9px
+      hsl(var(--primary) / 0.06) 8px 9px
     );
   }
 
-  .hover-lift {
-    @apply transition-all duration-300;
-  }
+  .hover-lift { @apply transition-all duration-300; }
   .hover-lift:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lift);

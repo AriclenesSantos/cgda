@@ -1,74 +1,69 @@
-# 🔐 Sistema de Perfis de Estúdios com Autenticação
+## Correções CGDA — 13/07/2026
 
-## Objetivo
-Cada estúdio terá uma conta (email + senha) para editar suas informações, jogos, fotos e atualizar dados em tempo real no site.
+Aplicar os 7 pontos do PDF. Divido por área para ficar fácil de rever.
 
----
+### 1. Backup / rollback
+Cada versão do código já fica no histórico do Lovable — dá para reverter a qualquer ponto pela linha do tempo do editor. Não é preciso alterar nada; só confirmar antes de publicar.
 
-## 🛠️ Infraestrutura (Lovable Cloud)
-Vou ativar o **Lovable Cloud** para fornecer:
-- Autenticação (email/senha)
-- Base de dados PostgreSQL (estúdios + jogos)
-- Storage para upload de imagens (logos e capas)
+### 2. Tema claro por padrão + botão de alternar
+- Adicionar um `ThemeProvider` (contexto) que guarda `light | dark` em `localStorage` e aplica a classe `dark` no `<html>`.
+- Padrão inicial: `light`.
+- Botão sol/lua no header (desktop e mobile), ao lado do "Entrar".
+- Reescrever `src/index.css`: acrescentar bloco `:root` (tema claro) com paleta clara equivalente e manter `.dark` com a paleta actual ultra-dark. Todos os tokens semânticos (`--background`, `--foreground`, `--surface`, `--border`, `--primary`, `--ember`, gradientes, sombras) ganham valor para cada tema.
+- Passar a limpo qualquer classe hardcoded (`text-white`, `bg-black`) que apareça em componentes chave e substituir por tokens.
 
----
+### 3. Logo adaptável (versão em linhas)
+- Criar `src/components/BrandLogo.tsx`: SVG monocromático em linhas derivado do logo actual, usando `stroke="currentColor"` — fica branco no escuro, preto no claro.
+- Header e Footer passam a usar `<BrandLogo />` em vez de `/logo-cgda.png`.
+- Corrigir alinhamento do bloco direito do header (Entrar + Explorar): unificar altura (`h-10`), remover `py` divergente, alinhar verticalmente com o logo (`items-center` no container já existe — o botão `clip-tab` tem padding diferente, vamos igualar).
 
-## 🗄️ Estrutura de Dados
+### 4. Fundo do herói
+- Remover a imagem/gradiente actual do `HeroSection` e trocar por cor sólida do tema (`bg-background` com uma faixa subtil `bg-surface`), preservando o texto. Fica pronto para receber ilustrações depois — deixo um comentário no ficheiro a indicar o ponto de troca.
 
-### Tabela `studios`
-- `id`, `slug`, `name`, `tagline`, `description`, `location`, `founded`, `website`, `logo_url`, `owner_id` (→ auth.users)
+### 5. Remover "IA look" do herói
+- Apagar a chip "● COMUNIDADE · DESDE 2021" do `HeroSection`.
+- Manter apenas no `Footer` (já existe lá).
 
-### Tabela `games`
-- `id`, `studio_id`, `title`, `description`, `status` (released/in-dev), `platforms[]`, `cover_url`, `links` (jsonb), `order`
+### 6. Editabilidade das estatísticas + Parceiros
+Cálculo automático + painel admin para o resto.
 
-### Tabela `user_roles`
-- Para distinguir admin/studio_owner (boa prática de segurança)
+**Base de dados (migração única):**
+- `site_stats` (key/value): membros (número editável), rótulo de jogos ("13+"), rótulo de estúdios opcional. Estúdios e jogos passam a ser contados via `count()` das tabelas existentes.
+- `partners` (nome, logo_url, website, descrição, ordem).
+- `site_settings` opcional para textos globais (título do herói, subtítulo) — deixo preparado mas só ligo membros/parceiros agora para não inchar.
+- Leitura pública (`GRANT SELECT ... TO anon`); escrita só para `admin` via `has_role`.
 
-### Storage Bucket `studio-assets`
-- Logos de estúdios e capas de jogos (público para leitura, autenticado para escrita pelo dono)
+**Painel admin:**
+- Nova rota `/admin` (protegida por `has_role(auth.uid(), 'admin')`) com:
+  - edição do número de membros e rótulos globais,
+  - CRUD de parceiros (nome, logo upload para `studio-assets/partners/`, website, ordem),
+  - lista dos estúdios para gestão rápida (opcional, reaproveita o dashboard).
+- Item "Admin" no header só aparece se o utilizador tiver o papel `admin`.
+- **Nota:** para atribuir o papel `admin` à sua conta, precisa dizer-me qual é o email — insiro directamente via migração ou dá para o fazer numa acção admin depois. Por agora vou preparar a migração pronta a receber esse email.
 
----
+**Componente `StatsBar`:**
+- Passa a ler `site_stats.members`, `count(studios)`, `count(games)` — reflectindo automaticamente novos estúdios/jogos criados no dashboard.
 
-## 🔑 Contas Criadas Automaticamente
-Vou criar uma conta para cada um dos 9 estúdios existentes, com senhas geradas, e mostrar a lista no chat:
+### 7. Nova secção "Parceiros"
+- Novo componente `PartnersSection.tsx` inserido em `Index.tsx` entre `EventsSection` e `Footer`.
+- Grelha simples com logos (grayscale por defeito, cor no hover), nome e link para o site do parceiro.
+- Lê da tabela `partners` (semear com AIGH e Centro de Talento na migração).
+- Link "Parceiros" adicionado ao menu do header (âncora `/#parceiros`).
 
-```
-mac-studio@cgda.ao        | senha-gerada
-bantu-games@cgda.ao       | senha-gerada
-hydra-games@cgda.ao       | senha-gerada
-... (todos os 9)
-```
+### Detalhes técnicos
+- Migração SQL: cria `site_stats`, `partners`; GRANTs; RLS (leitura pública, escrita `admin`); trigger `touch_updated_at`; seeds iniciais (`members=120`, AIGH, Centro de Talento com placeholders de logo até você enviar).
+- `src/lib/catalog.ts`: hooks `useSiteStats()`, `usePartners()`, `useCounts()` (studios/games).
+- `src/lib/theme.tsx`: contexto novo; envolve `<App />` em `main.tsx`.
+- Todos os `toast`/mensagens novos passam por `translateError`.
 
-Cada estúdio poderá depois alterar email e senha no painel.
+### Ordem de execução
+1. Migração (site_stats + partners + seeds) — precisa aprovação.
+2. `ThemeProvider`, `BrandLogo`, ajustes de `index.css`.
+3. Refactor `HeroSection` (remover badge, fundo sólido, StatsBar dinâmico).
+4. `PartnersSection` + item no menu.
+5. Rota `/admin` + guarda de rota.
+6. Alinhamento dos botões do header e swap do logo.
 
----
-
-## 🖥️ Páginas e Componentes Novos
-
-1. **Botão "Login"** no Header (canto superior direito)
-2. **`/auth`** — página de login (email + senha)
-3. **`/dashboard`** — painel do estúdio autenticado:
-   - Editar dados do estúdio (nome, descrição, logo, website…)
-   - Listar/criar/editar/eliminar jogos
-   - Upload de imagens (logo e capas)
-4. **`/account`** — alterar email e senha
-5. Páginas públicas (`/studios/:slug`) passam a ler da base de dados em vez do ficheiro estático
-
----
-
-## 🔒 Segurança
-- RLS ativado em todas as tabelas
-- Cada estúdio só pode editar o seu próprio registo e os seus jogos
-- Leitura pública (qualquer visitante vê os perfis)
-- Storage com políticas por `owner_id`
-
----
-
-## 📋 Etapas
-1. Ativar Lovable Cloud
-2. Criar schema (tabelas + RLS + bucket + grants)
-3. Migrar os dados estáticos atuais para a base de dados
-4. Criar as 9 contas e associar cada uma ao seu estúdio
-5. Implementar `/auth`, `/dashboard`, `/account` + botão Login
-6. Ligar páginas públicas à base de dados
-7. Entregar a lista de credenciais no chat
+### O que ainda preciso de si
+- **Email da sua conta** para eu atribuir papel `admin` na migração (ou confirma se prefere que crie uma conta admin separada).
+- **Logos oficiais** da AIGH e Centro de Talento (opcional — coloco placeholders e você edita depois no painel).

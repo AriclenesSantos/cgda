@@ -8,5 +8,10 @@ import "@fontsource/barlow/700.css";
 import "@fontsource/barlow/900.css";
 import App from "./App.tsx";
 import "./index.css";
+import { ThemeProvider } from "./lib/theme";
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <ThemeProvider>
+    <App />
+  </ThemeProvider>
+);
