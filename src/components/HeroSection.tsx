@@ -1,24 +1,21 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Play, Users, Building2, Gamepad2 } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
-import { games, studios } from "@/data/studios";
+import { useCounts, useSiteStat } from "@/lib/catalog";
 
 export default function HeroSection() {
-  const released = games.filter((g) => g.status === "Lançado").length;
+  const { studios: studioCount, games: gameCount } = useCounts();
+  const { value: membersRaw } = useSiteStat("members_count");
+  const { value: gamesLabelRaw } = useSiteStat("games_label");
+
+  const members = membersRaw ? `+${membersRaw}` : "+120";
+  const gamesLabel = gamesLabelRaw || `${gameCount}+`;
 
   return (
-    <section className="relative isolate overflow-hidden pt-28 pb-20 md:pt-36 md:pb-28">
-      {/* Background image */}
+    <section className="relative isolate overflow-hidden bg-background pt-28 pb-20 md:pt-36 md:pb-28">
+      {/* Fundo sólido — pronto para receber ilustrações depois */}
       <div className="absolute inset-0 -z-10">
-        <img
-          src={heroBg}
-          alt=""
-          className="h-full w-full object-cover opacity-70"
-          width={1920}
-          height={1080}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
-        <div className="absolute inset-0 bg-grid opacity-40" />
+        <div className="absolute inset-0 bg-grid opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
       </div>
 
       <div className="container">
@@ -28,12 +25,7 @@ export default function HeroSection() {
           transition={{ duration: 0.6 }}
           className="max-w-3xl"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs uppercase tracking-[0.25em] text-primary">
-            <span className="h-1.5 w-1.5 animate-ember-pulse rounded-full bg-primary" />
-            Comunidade · Desde 2021
-          </div>
-
-          <h1 className="mt-6 font-display text-6xl uppercase leading-[0.95] tracking-wide sm:text-7xl md:text-8xl">
+          <h1 className="font-display text-6xl uppercase leading-[0.95] tracking-wide sm:text-7xl md:text-8xl">
             Os jogos de
             <br />
             <span className="text-ember">Angola</span> jogam-se aqui.
@@ -48,9 +40,9 @@ export default function HeroSection() {
           <div className="mt-8 flex flex-wrap gap-3">
             <a
               href="#jogos"
-              className="clip-tab group inline-flex items-center gap-2 bg-ember px-6 py-3 font-display text-sm uppercase tracking-[0.2em] text-white shadow-ember transition-transform hover:scale-[1.03]"
+              className="clip-tab group inline-flex items-center gap-2 bg-ember px-6 py-3 font-display text-sm uppercase tracking-[0.2em] text-primary-foreground shadow-ember transition-transform hover:scale-[1.03]"
             >
-              <Play className="h-4 w-4 fill-white" />
+              <Play className="h-4 w-4 fill-current" />
               Ver catálogo
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
@@ -63,7 +55,6 @@ export default function HeroSection() {
           </div>
         </motion.div>
 
-        {/* Stat strip */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -71,9 +62,9 @@ export default function HeroSection() {
           className="mt-16 grid max-w-3xl grid-cols-3 divide-x divide-border border border-border bg-surface/60 backdrop-blur-sm"
         >
           {[
-            { icon: Users, value: "+120", label: "Membros" },
-            { icon: Building2, value: `${studios.length}`, label: "Estúdios" },
-            { icon: Gamepad2, value: `${released}+`, label: "Jogos" },
+            { icon: Users, value: members, label: "Membros" },
+            { icon: Building2, value: `${studioCount || 0}`, label: "Estúdios" },
+            { icon: Gamepad2, value: gamesLabel, label: "Jogos" },
           ].map((s) => (
             <div key={s.label} className="flex items-center gap-3 px-5 py-4">
               <s.icon className="h-5 w-5 text-primary" />
