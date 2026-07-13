@@ -27,6 +27,61 @@ export interface GameRow {
   sort_order: number;
 }
 
+export interface PartnerRow {
+  id: string;
+  name: string;
+  description: string;
+  website: string | null;
+  logo_url: string | null;
+  sort_order: number;
+}
+
+export function usePartners() {
+  const [data, setData] = useState<PartnerRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    (supabase as any).from("partners").select("*").order("sort_order").then(({ data }: any) => {
+      if (!alive) return;
+      setData((data as PartnerRow[]) ?? []);
+      setLoading(false);
+    });
+    return () => { alive = false; };
+  }, []);
+  return { partners: data, loading };
+}
+
+export function useSiteStat(key: string) {
+  const [value, setValue] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    (supabase as any).from("site_stats").select("value").eq("key", key).maybeSingle().then(({ data }: any) => {
+      if (!alive) return;
+      setValue(data?.value ?? null);
+      setLoading(false);
+    });
+    return () => { alive = false; };
+  }, [key]);
+  return { value, loading };
+}
+
+export function useCounts() {
+  const [counts, setCounts] = useState<{ studios: number; games: number }>({ studios: 0, games: 0 });
+  useEffect(() => {
+    let alive = true;
+    Promise.all([
+      supabase.from("studios").select("id", { count: "exact", head: true }),
+      supabase.from("games").select("id", { count: "exact", head: true }),
+    ]).then(([s, g]) => {
+      if (!alive) return;
+      setCounts({ studios: s.count ?? 0, games: g.count ?? 0 });
+    });
+    return () => { alive = false; };
+  }, []);
+  return counts;
+}
+
 export function studioCover(s: Pick<StudioRow, "id" | "logo_url">): string {
   return s.logo_url || studioImages[s.id] || "";
 }
