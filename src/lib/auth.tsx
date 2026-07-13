@@ -18,35 +18,39 @@ const Ctx = createContext<AuthCtx>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [studioId, setStudioId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen first (sync), then check existing session.
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       if (s?.user) {
-        // Defer DB call to avoid deadlock per Supabase guidance
-        setTimeout(() => loadStudio(s.user.id), 0);
+        setTimeout(() => loadProfile(s.user.id), 0);
       } else {
         setStudioId(null);
+        setIsAdmin(false);
       }
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      if (data.session?.user) loadStudio(data.session.user.id);
+      if (data.session?.user) loadProfile(data.session.user.id);
       setLoading(false);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  async function loadStudio(uid: string) {
-    const { data } = await supabase.from("studios").select("id").eq("owner_id", uid).maybeSingle();
-    setStudioId(data?.id ?? null);
+  async function loadProfile(uid: string) {
+    const [{ data: studio }, { data: roles }] = await Promise.all([
+      supabase.from("studios").select("id").eq("owner_id", uid).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", uid),
+    ]);
+    setStudioId(studio?.id ?? null);
+    setIsAdmin(!!roles?.some((r: any) => r.role === "admin"));
   }
 
   const value: AuthCtx = {
     user: session?.user ?? null,
-    session, studioId, loading,
+    session, studioId, isAdmin, loading,
     signOut: async () => { await supabase.auth.signOut(); },
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
