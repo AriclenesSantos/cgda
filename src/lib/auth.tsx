@@ -6,12 +6,13 @@ interface AuthCtx {
   user: User | null;
   session: Session | null;
   studioId: string | null;
+  isAdmin: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
 }
 
 const Ctx = createContext<AuthCtx>({
-  user: null, session: null, studioId: null, loading: true, signOut: async () => {},
+  user: null, session: null, studioId: null, isAdmin: false, loading: true, signOut: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
