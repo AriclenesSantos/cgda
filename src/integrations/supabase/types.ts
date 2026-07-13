@@ -67,6 +67,57 @@ export type Database = {
           },
         ]
       }
+      partners: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          logo_url: string | null
+          name: string
+          sort_order: number
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          sort_order?: number
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          sort_order?: number
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      site_stats: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       studios: {
         Row: {
           created_at: string
