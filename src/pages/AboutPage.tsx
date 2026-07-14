@@ -3,6 +3,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Users, Gamepad2, Building2, Target, Lightbulb, Handshake, Trophy, Code } from "lucide-react";
 import { studios, games } from "@/data/studios";
+import cgdaFull from "@/assets/brand/cgda-full.png.asset.json";
+import cgdaWhite from "@/assets/brand/cgda-white.png.asset.json";
+import { useTheme } from "@/lib/theme";
 
 const objectives = [
   { icon: Handshake, text: "Unir desenvolvedores de jogos em Angola" },
