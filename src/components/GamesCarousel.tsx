@@ -66,37 +66,30 @@ export function GameCard({ game, studio }: { game: GameRow; studio?: StudioRow }
   return (
     <Link
       to={`/estudio/${game.studio_id}`}
-      className="group relative block overflow-hidden border border-border bg-surface transition-all duration-300 hover:border-primary/60 hover-lift"
+      className="group relative flex h-full flex-col overflow-hidden border border-border bg-surface transition-all duration-300 hover:border-primary/60 hover-lift"
     >
-      <div className="relative aspect-[4/5] overflow-hidden">
+      <div className="relative aspect-[4/5] overflow-hidden bg-background">
         <img
           src={gameCover(game)} alt={game.title} loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        <div className="absolute inset-0 bg-grid opacity-10 mix-blend-overlay" />
+      </div>
 
-        <Gamepad2 className="absolute right-4 top-4 h-8 w-8 text-white/30 transition-all group-hover:text-primary group-hover:scale-110 drop-shadow-lg" />
-
-        <div className={`absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${
-          released ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
-        }`}>
-          <span className="h-1.5 w-1.5 rounded-full bg-current animate-ember-pulse" />
-          {released ? "Lançado" : "Em Dev"}
+      <div className="flex flex-1 flex-col gap-2 border-t border-border p-4">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground truncate">{studio?.name}</span>
+          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] ${
+            released ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"
+          }`}>
+            <span className="h-1 w-1 rounded-full bg-current" />
+            {released ? "Lançado" : "Em Dev"}
+          </span>
         </div>
-
-        <div className="absolute inset-x-0 bottom-0 p-5">
-          <span className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{studio?.name}</span>
-          <h3 className="mt-1 font-display text-2xl uppercase leading-none tracking-wide text-foreground">{game.title}</h3>
-          <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{game.description}</p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {game.genre && (
-              <span className="border border-border bg-background/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-foreground/80">{game.genre}</span>
-            )}
-            {game.platforms.slice(0, 2).map((p) => (
-              <span key={p} className="border border-border bg-background/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">{p}</span>
-            ))}
-          </div>
+        <h3 className="font-display text-lg uppercase leading-tight tracking-wide text-foreground line-clamp-1">{game.title}</h3>
+        <div className="mt-auto flex flex-wrap gap-1 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+          {game.genre && <span>{game.genre}</span>}
+          {game.genre && game.platforms.length > 0 && <span className="opacity-40">·</span>}
+          <span className="truncate">{game.platforms.slice(0, 2).join(" · ")}</span>
         </div>
       </div>
     </Link>
