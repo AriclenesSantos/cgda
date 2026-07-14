@@ -8,14 +8,9 @@ export default function Footer() {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
       <div className="container grid gap-10 py-14 md:grid-cols-4">
         <div className="md:col-span-2">
-          <div className="flex items-center gap-3 text-foreground">
-            <BrandLogo className="h-10 w-10" />
-            <div>
-              <div className="font-display text-xl tracking-widest">Comunidade Game Dev Angola</div>
-              <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Fundada em 2021 · Luanda
-              </div>
-            </div>
+          <BrandLogo className="h-28 w-28 object-contain" />
+          <div className="mt-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            Fundada em 2021 · Luanda
           </div>
           <p className="mt-4 max-w-md text-sm text-muted-foreground">
             Unindo estúdios, desenvolvedores, artistas e jogadores para construir uma
