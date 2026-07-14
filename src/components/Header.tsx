@@ -36,17 +36,9 @@ export default function Header() {
         scrolled ? "bg-background/85 backdrop-blur-md border-b border-border/60" : "bg-transparent"
       }`}
     >
-      <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="group flex items-center gap-3">
-          <div className="relative grid h-10 w-10 place-items-center rounded-md text-foreground">
-            <BrandLogo className="h-9 w-9" />
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-display text-xl tracking-widest text-foreground">CGDA</span>
-            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Game Dev Angola
-            </span>
-          </div>
+      <div className="container flex h-20 items-center justify-between">
+        <Link to="/" aria-label="Comunidade Game Dev Angola" className="group flex items-center">
+          <BrandLogo className="h-16 w-16 md:h-20 md:w-20 object-contain -my-2 transition-transform group-hover:scale-105" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
