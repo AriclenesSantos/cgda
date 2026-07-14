@@ -17,11 +17,6 @@ export default function Footer() {
             indústria de jogos forte, criativa e profundamente angolana.
           </p>
         </div>
-          <p className="mt-4 max-w-md text-sm text-muted-foreground">
-            Unindo estúdios, desenvolvedores, artistas e jogadores para construir uma
-            indústria de jogos forte, criativa e profundamente angolana.
-          </p>
-        </div>
 
         <div>
           <h4 className="font-display text-sm uppercase tracking-[0.2em] text-foreground">Navegar</h4>
