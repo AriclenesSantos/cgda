@@ -17,10 +17,9 @@ export default function StudiosSection() {
           subtitle="Estúdios angolanos a fazer história — do mobile ao Steam."
         />
 
-        <div className="mt-12 grid auto-rows-[minmax(180px,_auto)] grid-cols-1 gap-4 md:grid-cols-6">
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {studios.map((s, i) => {
             const count = countFor(s.id);
-            const featured = i === 0;
             return (
               <motion.div
                 key={s.id}
@@ -28,40 +27,38 @@ export default function StudiosSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.45, delay: (i % 6) * 0.05 }}
-                className={`group relative ${featured ? "md:col-span-3 md:row-span-2" : "md:col-span-2"}`}
               >
                 <Link
                   to={`/estudio/${s.id}`}
-                  className="clip-corner relative flex h-full flex-col overflow-hidden border border-border bg-surface p-6 transition-all duration-300 hover:border-primary/60"
+                  className="group relative flex h-full flex-col overflow-hidden border border-border bg-surface transition-all duration-300 hover:border-primary/60 hover-lift"
                 >
-                  <img
-                    src={studioCover(s)}
-                    alt={s.name}
-                    loading="lazy"
-                    className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-40 transition-all duration-700 group-hover:opacity-70 group-hover:scale-105"
-                  />
-                  <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-surface via-surface/85 to-surface/40" />
-                  <div className="pointer-events-none absolute -inset-px -z-10 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/15" />
-                  </div>
-                  <div className="flex items-start justify-between">
-                    <span className="font-display text-xs uppercase tracking-[0.25em] text-muted-foreground">
-                      Studio · {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="grid h-9 w-9 place-items-center rounded-full border border-border bg-background/50 text-muted-foreground transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </span>
+                  <div className="relative aspect-[16/10] overflow-hidden bg-background">
+                    <img
+                      src={studioCover(s)}
+                      alt={s.name}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
                   </div>
 
-                  <div className="mt-auto pt-6">
-                    <h3 className={`font-display uppercase leading-none text-foreground ${featured ? "text-5xl md:text-6xl" : "text-3xl md:text-4xl"}`}>
+                  <div className="flex flex-1 flex-col gap-3 border-t border-border p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-display text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                        Studio · {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="grid h-8 w-8 place-items-center rounded-full border border-border bg-background/50 text-muted-foreground transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                        <ArrowUpRight className="h-4 w-4" />
+                      </span>
+                    </div>
+
+                    <h3 className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">
                       {s.name}
                     </h3>
-                    <p className={`mt-3 text-muted-foreground ${featured ? "max-w-md text-base" : "text-sm line-clamp-2"}`}>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {s.tagline || s.description}
                     </p>
 
-                    <div className="mt-5 flex items-center gap-4 border-t border-border pt-4 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    <div className="mt-auto flex items-center gap-4 border-t border-border pt-3 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                       <span>
                         <span className="text-primary font-semibold">{count}</span> projeto{count !== 1 ? "s" : ""}
                       </span>
@@ -71,8 +68,6 @@ export default function StudiosSection() {
                       </span>
                     </div>
                   </div>
-
-                  <div className="absolute right-0 top-0 h-12 w-12 stripes opacity-60" />
                 </Link>
               </motion.div>
             );
