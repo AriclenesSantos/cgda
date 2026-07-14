@@ -37,7 +37,7 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <img src={logoSrc} alt="Comunidade Game Dev Angola" className="mx-auto h-28 w-28 object-contain" />
+              <img src={logoSrc} alt="Comunidade Game Dev Angola" className="mx-auto h-48 w-48 md:h-64 md:w-64 object-contain" />
               <span className="mt-6 inline-block font-display text-xs uppercase tracking-[0.3em] text-primary">
                 Sobre nós
               </span>
