@@ -3,6 +3,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Users, Gamepad2, Building2, Target, Lightbulb, Handshake, Trophy, Code } from "lucide-react";
 import { studios, games } from "@/data/studios";
+import cgdaFull from "@/assets/brand/cgda-full.png.asset.json";
+import cgdaWhite from "@/assets/brand/cgda-white.png.asset.json";
+import { useTheme } from "@/lib/theme";
 
 const objectives = [
   { icon: Handshake, text: "Unir desenvolvedores de jogos em Angola" },
@@ -13,6 +16,8 @@ const objectives = [
 ];
 
 export default function AboutPage() {
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? cgdaWhite.url : cgdaFull.url;
   const stats = [
     { icon: Users, value: "+120", label: "Membros" },
     { icon: Building2, value: `${studios.length}`, label: "Estúdios" },
@@ -32,7 +37,7 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <img src="/logo-cgda.png" alt="CGDA" className="mx-auto h-20 w-20" />
+              <img src={logoSrc} alt="Comunidade Game Dev Angola" className="mx-auto h-28 w-28 object-contain" />
               <span className="mt-6 inline-block font-display text-xs uppercase tracking-[0.3em] text-primary">
                 Sobre nós
               </span>
