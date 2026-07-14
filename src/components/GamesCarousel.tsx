@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, Gamepad2 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGames, useStudios, gameCover, type GameRow, type StudioRow } from "@/lib/catalog";
 import { SectionHeader } from "./StudiosSection";
