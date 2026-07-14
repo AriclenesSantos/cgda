@@ -16,6 +16,8 @@ const objectives = [
 ];
 
 export default function AboutPage() {
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? cgdaWhite.url : cgdaFull.url;
   const stats = [
     { icon: Users, value: "+120", label: "Membros" },
     { icon: Building2, value: `${studios.length}`, label: "Estúdios" },
