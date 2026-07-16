@@ -238,6 +238,8 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
   );
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingTrailer, setUploadingTrailer] = useState(false);
+  const [uploadingShot, setUploadingShot] = useState(false);
 
   async function onCover(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]; if (!f) return;
@@ -251,6 +253,36 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
     finally { setUploading(false); }
   }
 
+  async function onTrailer(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0]; if (!f) return;
+    if (f.size > 200 * 1024 * 1024) { toast.error("Vídeo demasiado grande (máx 200MB)."); return; }
+    setUploadingTrailer(true);
+    try {
+      const id = form.id || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60) || crypto.randomUUID();
+      const url = await uploadStudioAsset(studioId, f, "trailer", id);
+      setForm((s) => ({ ...s, trailer_url: url }));
+      toast.success("Trailer enviado. Lembre-se de salvar.");
+    } catch (err: any) { toast.error("Falha: " + translateError(err)); }
+    finally { setUploadingTrailer(false); }
+  }
+
+  async function onScreenshots(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []); if (!files.length) return;
+    setUploadingShot(true);
+    try {
+      const id = form.id || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60) || crypto.randomUUID();
+      const urls: string[] = [];
+      for (const f of files) urls.push(await uploadStudioAsset(studioId, f, "screenshot", id));
+      setForm((s) => ({ ...s, screenshots: [...(s.screenshots ?? []), ...urls] }));
+      toast.success(`${urls.length} imagem(ns) adicionada(s).`);
+    } catch (err: any) { toast.error("Falha: " + translateError(err)); }
+    finally { setUploadingShot(false); e.target.value = ""; }
+  }
+
+  function removeScreenshot(url: string) {
+    setForm((s) => ({ ...s, screenshots: (s.screenshots ?? []).filter((u) => u !== url) }));
+  }
+
   async function save(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -262,14 +294,16 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
 
     const payload = {
       title: form.title, description: form.description, genre: form.genre,
-      status: form.status, platforms, cover_url: form.cover_url, links: links as any,
+      status: form.status, platforms, cover_url: form.cover_url,
+      trailer_url: form.trailer_url, screenshots: form.screenshots ?? [],
+      links: links as any,
     };
     let error;
     if (game) {
-      ({ error } = await supabase.from("games").update(payload).eq("id", game.id));
+      ({ error } = await (supabase.from("games") as any).update(payload).eq("id", game.id));
     } else {
       const id = (form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60) || crypto.randomUUID());
-      ({ error } = await supabase.from("games").insert({ id, studio_id: studioId, ...payload }));
+      ({ error } = await (supabase.from("games") as any).insert({ id, studio_id: studioId, ...payload }));
     }
     setSaving(false);
     if (error) { toast.error(translateError(error)); return; }
