@@ -117,8 +117,13 @@ function normalizeLinks(raw: Tables<"games">["links"]): GameLink[] {
   );
 }
 
-function toGameRow(r: Tables<"games">): GameRow {
-  return { ...r, links: normalizeLinks(r.links) };
+function toGameRow(r: Tables<"games"> & { trailer_url?: string | null; screenshots?: string[] | null }): GameRow {
+  return {
+    ...r,
+    trailer_url: r.trailer_url ?? null,
+    screenshots: Array.isArray(r.screenshots) ? r.screenshots : [],
+    links: normalizeLinks(r.links),
+  };
 }
 
 export function useGames(studioId?: string) {
