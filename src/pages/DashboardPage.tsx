@@ -352,6 +352,58 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
           </div>
         </div>
 
+        {/* Trailer & screenshots */}
+        <div className="mt-6 grid gap-5 border-t border-border pt-5 md:grid-cols-2">
+          <div>
+            <div className="font-display text-xs uppercase tracking-[0.22em] text-primary">Trailer</div>
+            <p className="mt-1 text-[11px] text-muted-foreground">MP4/WebM até 200MB. Ou cole um URL directo.</p>
+            {form.trailer_url && (
+              <video src={form.trailer_url} controls className="mt-3 aspect-video w-full border border-border bg-black" />
+            )}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-3 py-2 text-[10px] uppercase tracking-[0.22em] hover:border-primary hover:text-primary">
+                {uploadingTrailer ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {form.trailer_url ? "Trocar trailer" : "Enviar trailer"}
+                <input type="file" accept="video/*" className="hidden" onChange={onTrailer} />
+              </label>
+              {form.trailer_url && (
+                <button type="button" onClick={() => setForm({ ...form, trailer_url: null })}
+                  className="inline-flex items-center gap-1 border border-border px-3 py-2 text-[10px] uppercase tracking-[0.22em] hover:border-primary hover:text-primary">
+                  <Trash2 className="h-3 w-3" /> Remover
+                </button>
+              )}
+            </div>
+            <input
+              value={form.trailer_url ?? ""}
+              onChange={(e) => setForm({ ...form, trailer_url: e.target.value || null })}
+              placeholder="https://…/trailer.mp4"
+              className={`${inputCls} mt-3 text-xs`}
+            />
+          </div>
+
+          <div>
+            <div className="font-display text-xs uppercase tracking-[0.22em] text-primary">Capturas de jogabilidade</div>
+            <p className="mt-1 text-[11px] text-muted-foreground">Adicione várias imagens da gameplay.</p>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {(form.screenshots ?? []).map((url) => (
+                <div key={url} className="group relative aspect-video overflow-hidden border border-border bg-background">
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <button type="button" onClick={() => removeScreenshot(url)}
+                    aria-label="Remover"
+                    className="absolute right-1 top-1 grid h-6 w-6 place-items-center bg-background/80 opacity-0 transition-opacity hover:text-primary group-hover:opacity-100">
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              <label className="grid aspect-video cursor-pointer place-items-center border border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary">
+                {uploadingShot ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
+                <input type="file" accept="image/*" multiple className="hidden" onChange={onScreenshots} />
+              </label>
+            </div>
+          </div>
+        </div>
+
+
         <div className="mt-6 flex justify-end gap-2">
           <button type="button" onClick={onClose} className="border border-border px-4 py-2 text-xs uppercase tracking-[0.22em]">Cancelar</button>
           <button disabled={saving} className="inline-flex items-center gap-2 bg-ember px-5 py-2 font-display text-xs uppercase tracking-[0.22em] text-white shadow-ember disabled:opacity-60">
