@@ -1,12 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
-import { useCallback } from "react";
-import { ChevronLeft, ChevronRight, ExternalLink, ArrowLeft, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, ExternalLink, ArrowLeft, Loader2, Play, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { SectionHeader } from "@/components/StudiosSection";
 import { GameCard } from "@/components/GamesCarousel";
+import VideoPlayer from "@/components/VideoPlayer";
 import { useStudio, useGames, studioCover, gameCover, type GameRow } from "@/lib/catalog";
 
 const StudioPage = () => {
