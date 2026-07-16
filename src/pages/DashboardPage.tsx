@@ -229,7 +229,7 @@ function GamesTab({ studioId, games, onChange }: { studioId: string; games: Game
 function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; game: GameRow | null; onClose: () => void; onSaved: () => void }) {
   const blank: GameRow = {
     id: "", studio_id: studioId, title: "", description: "", genre: "", status: "Lançado",
-    platforms: [], cover_url: null, links: [], sort_order: 0,
+    platforms: [], cover_url: null, trailer_url: null, screenshots: [], links: [], sort_order: 0,
   };
   const [form, setForm] = useState<GameRow>(game ?? blank);
   const [platformsText, setPlatformsText] = useState((game?.platforms ?? []).join(", "));
