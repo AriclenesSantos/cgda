@@ -23,6 +23,8 @@ export interface GameRow {
   status: string;
   platforms: string[];
   cover_url: string | null;
+  trailer_url: string | null;
+  screenshots: string[];
   links: { label: string; url: string }[];
   sort_order: number;
 }
