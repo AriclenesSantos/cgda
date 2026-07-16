@@ -160,11 +160,19 @@ export function useStudio(id?: string) {
 }
 
 /** Upload to studio-assets and return a long-lived signed URL stored in the row. */
-export async function uploadStudioAsset(studioId: string, file: File, kind: "logo" | "game", gameId?: string) {
+export async function uploadStudioAsset(
+  studioId: string,
+  file: File,
+  kind: "logo" | "game" | "screenshot" | "trailer",
+  gameId?: string
+) {
   const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-  const path = kind === "logo"
-    ? `${studioId}/logo-${Date.now()}.${ext}`
-    : `${studioId}/games/${gameId}-${Date.now()}.${ext}`;
+  const stamp = Date.now();
+  const path =
+    kind === "logo" ? `${studioId}/logo-${stamp}.${ext}`
+    : kind === "trailer" ? `${studioId}/games/${gameId}-trailer-${stamp}.${ext}`
+    : kind === "screenshot" ? `${studioId}/games/${gameId}-shot-${stamp}.${ext}`
+    : `${studioId}/games/${gameId}-${stamp}.${ext}`;
   const { error: upErr } = await supabase.storage.from("studio-assets")
     .upload(path, file, { upsert: true, cacheControl: "3600" });
   if (upErr) throw upErr;
