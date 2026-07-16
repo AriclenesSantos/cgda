@@ -229,7 +229,7 @@ function GamesTab({ studioId, games, onChange }: { studioId: string; games: Game
 function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; game: GameRow | null; onClose: () => void; onSaved: () => void }) {
   const blank: GameRow = {
     id: "", studio_id: studioId, title: "", description: "", genre: "", status: "Lançado",
-    platforms: [], cover_url: null, links: [], sort_order: 0,
+    platforms: [], cover_url: null, trailer_url: null, screenshots: [], links: [], sort_order: 0,
   };
   const [form, setForm] = useState<GameRow>(game ?? blank);
   const [platformsText, setPlatformsText] = useState((game?.platforms ?? []).join(", "));
@@ -238,6 +238,8 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
   );
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingTrailer, setUploadingTrailer] = useState(false);
+  const [uploadingShot, setUploadingShot] = useState(false);
 
   async function onCover(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]; if (!f) return;
@@ -251,6 +253,36 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
     finally { setUploading(false); }
   }
 
+  async function onTrailer(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0]; if (!f) return;
+    if (f.size > 200 * 1024 * 1024) { toast.error("Vídeo demasiado grande (máx 200MB)."); return; }
+    setUploadingTrailer(true);
+    try {
+      const id = form.id || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60) || crypto.randomUUID();
+      const url = await uploadStudioAsset(studioId, f, "trailer", id);
+      setForm((s) => ({ ...s, trailer_url: url }));
+      toast.success("Trailer enviado. Lembre-se de salvar.");
+    } catch (err: any) { toast.error("Falha: " + translateError(err)); }
+    finally { setUploadingTrailer(false); }
+  }
+
+  async function onScreenshots(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []); if (!files.length) return;
+    setUploadingShot(true);
+    try {
+      const id = form.id || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60) || crypto.randomUUID();
+      const urls: string[] = [];
+      for (const f of files) urls.push(await uploadStudioAsset(studioId, f, "screenshot", id));
+      setForm((s) => ({ ...s, screenshots: [...(s.screenshots ?? []), ...urls] }));
+      toast.success(`${urls.length} imagem(ns) adicionada(s).`);
+    } catch (err: any) { toast.error("Falha: " + translateError(err)); }
+    finally { setUploadingShot(false); e.target.value = ""; }
+  }
+
+  function removeScreenshot(url: string) {
+    setForm((s) => ({ ...s, screenshots: (s.screenshots ?? []).filter((u) => u !== url) }));
+  }
+
   async function save(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -262,14 +294,16 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
 
     const payload = {
       title: form.title, description: form.description, genre: form.genre,
-      status: form.status, platforms, cover_url: form.cover_url, links: links as any,
+      status: form.status, platforms, cover_url: form.cover_url,
+      trailer_url: form.trailer_url, screenshots: form.screenshots ?? [],
+      links: links as any,
     };
     let error;
     if (game) {
-      ({ error } = await supabase.from("games").update(payload).eq("id", game.id));
+      ({ error } = await (supabase.from("games") as any).update(payload).eq("id", game.id));
     } else {
       const id = (form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60) || crypto.randomUUID());
-      ({ error } = await supabase.from("games").insert({ id, studio_id: studioId, ...payload }));
+      ({ error } = await (supabase.from("games") as any).insert({ id, studio_id: studioId, ...payload }));
     }
     setSaving(false);
     if (error) { toast.error(translateError(error)); return; }
@@ -317,6 +351,58 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
             </Field>
           </div>
         </div>
+
+        {/* Trailer & screenshots */}
+        <div className="mt-6 grid gap-5 border-t border-border pt-5 md:grid-cols-2">
+          <div>
+            <div className="font-display text-xs uppercase tracking-[0.22em] text-primary">Trailer</div>
+            <p className="mt-1 text-[11px] text-muted-foreground">MP4/WebM até 200MB. Ou cole um URL directo.</p>
+            {form.trailer_url && (
+              <video src={form.trailer_url} controls className="mt-3 aspect-video w-full border border-border bg-black" />
+            )}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-3 py-2 text-[10px] uppercase tracking-[0.22em] hover:border-primary hover:text-primary">
+                {uploadingTrailer ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {form.trailer_url ? "Trocar trailer" : "Enviar trailer"}
+                <input type="file" accept="video/*" className="hidden" onChange={onTrailer} />
+              </label>
+              {form.trailer_url && (
+                <button type="button" onClick={() => setForm({ ...form, trailer_url: null })}
+                  className="inline-flex items-center gap-1 border border-border px-3 py-2 text-[10px] uppercase tracking-[0.22em] hover:border-primary hover:text-primary">
+                  <Trash2 className="h-3 w-3" /> Remover
+                </button>
+              )}
+            </div>
+            <input
+              value={form.trailer_url ?? ""}
+              onChange={(e) => setForm({ ...form, trailer_url: e.target.value || null })}
+              placeholder="https://…/trailer.mp4"
+              className={`${inputCls} mt-3 text-xs`}
+            />
+          </div>
+
+          <div>
+            <div className="font-display text-xs uppercase tracking-[0.22em] text-primary">Capturas de jogabilidade</div>
+            <p className="mt-1 text-[11px] text-muted-foreground">Adicione várias imagens da gameplay.</p>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {(form.screenshots ?? []).map((url) => (
+                <div key={url} className="group relative aspect-video overflow-hidden border border-border bg-background">
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <button type="button" onClick={() => removeScreenshot(url)}
+                    aria-label="Remover"
+                    className="absolute right-1 top-1 grid h-6 w-6 place-items-center bg-background/80 opacity-0 transition-opacity hover:text-primary group-hover:opacity-100">
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              <label className="grid aspect-video cursor-pointer place-items-center border border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary">
+                {uploadingShot ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
+                <input type="file" accept="image/*" multiple className="hidden" onChange={onScreenshots} />
+              </label>
+            </div>
+          </div>
+        </div>
+
 
         <div className="mt-6 flex justify-end gap-2">
           <button type="button" onClick={onClose} className="border border-border px-4 py-2 text-xs uppercase tracking-[0.22em]">Cancelar</button>

@@ -1,12 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
-import { useCallback } from "react";
-import { ChevronLeft, ChevronRight, ExternalLink, ArrowLeft, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, ExternalLink, ArrowLeft, Loader2, Play, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { SectionHeader } from "@/components/StudiosSection";
 import { GameCard } from "@/components/GamesCarousel";
+import VideoPlayer from "@/components/VideoPlayer";
 import { useStudio, useGames, studioCover, gameCover, type GameRow } from "@/lib/catalog";
 
 const StudioPage = () => {
@@ -155,12 +156,29 @@ const StudioPage = () => {
 
 function GameDetailCard({ game }: { game: GameRow }) {
   const released = game.status === "Lançado";
+  const [modal, setModal] = useState<{ kind: "trailer" | "shot"; index: number } | null>(null);
+  const shots = game.screenshots ?? [];
+  const hasTrailer = !!game.trailer_url;
+
   return (
     <div className="group flex flex-col border border-border bg-surface transition-colors hover:border-primary/60">
       <div className="relative aspect-video overflow-hidden border-b border-border bg-background">
         <img src={gameCover(game)} alt={game.title} loading="lazy"
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        {hasTrailer && (
+          <button
+            type="button"
+            onClick={() => setModal({ kind: "trailer", index: 0 })}
+            className="absolute inset-0 grid place-items-center bg-black/0 transition-colors hover:bg-black/40"
+            aria-label="Ver trailer"
+          >
+            <span className="grid h-14 w-14 place-items-center rounded-full bg-primary/90 text-primary-foreground opacity-0 shadow-[0_0_30px_hsl(var(--primary)/0.7)] transition-opacity group-hover:opacity-100">
+              <Play className="h-6 w-6 translate-x-0.5 fill-current" />
+            </span>
+          </button>
+        )}
       </div>
+
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center justify-between gap-2">
           {game.genre ? (
@@ -172,18 +190,131 @@ function GameDetailCard({ game }: { game: GameRow }) {
         </div>
         <h3 className="mt-1 font-display text-xl uppercase tracking-wide">{game.title}</h3>
         <p className="mt-2 text-sm text-muted-foreground">{game.description}</p>
+
+        {shots.length > 0 && (
+          <div className="mt-4 grid grid-cols-4 gap-1.5">
+            {shots.slice(0, 4).map((url, i) => (
+              <button key={url} type="button" onClick={() => setModal({ kind: "shot", index: i })}
+                className="relative aspect-video overflow-hidden border border-border bg-background transition-colors hover:border-primary">
+                <img src={url} alt="" loading="lazy" className="h-full w-full object-cover transition-transform hover:scale-110" />
+                {i === 3 && shots.length > 4 && (
+                  <span className="absolute inset-0 grid place-items-center bg-background/70 font-display text-xs uppercase tracking-[0.2em] text-primary">
+                    +{shots.length - 4}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="mt-4 flex flex-wrap gap-1.5">
           {game.platforms.map((p) => (
             <span key={p} className="border border-border px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">{p}</span>
           ))}
         </div>
-        {game.links?.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {game.links.map((l) => (
-              <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs uppercase tracking-[0.18em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
-                {l.label} <ExternalLink className="h-3 w-3" />
-              </a>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {hasTrailer && (
+            <button type="button" onClick={() => setModal({ kind: "trailer", index: 0 })}
+              className="inline-flex items-center gap-1.5 bg-primary px-3 py-1.5 text-xs uppercase tracking-[0.18em] text-primary-foreground transition-opacity hover:opacity-90">
+              <Play className="h-3 w-3 fill-current" /> Ver trailer
+            </button>
+          )}
+          {game.links?.length > 0 && game.links.map((l) => (
+            <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs uppercase tracking-[0.18em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
+              {l.label} <ExternalLink className="h-3 w-3" />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {modal && (
+        <MediaModal
+          title={game.title}
+          initial={modal}
+          trailerUrl={game.trailer_url}
+          poster={gameCover(game)}
+          screenshots={shots}
+          onClose={() => setModal(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function MediaModal({
+  title, initial, trailerUrl, poster, screenshots, onClose,
+}: {
+  title: string;
+  initial: { kind: "trailer" | "shot"; index: number };
+  trailerUrl: string | null;
+  poster?: string;
+  screenshots: string[];
+  onClose: () => void;
+}) {
+  const [view, setView] = useState(initial);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 p-4 backdrop-blur-md" onClick={onClose}>
+      <div className="relative w-full max-w-5xl border border-border bg-surface" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-border px-5 py-3">
+          <div>
+            <span className="font-display text-[10px] uppercase tracking-[0.3em] text-primary">
+              {view.kind === "trailer" ? "Trailer" : `Screenshot ${view.index + 1}/${screenshots.length}`}
+            </span>
+            <h4 className="font-display text-lg uppercase tracking-wide">{title}</h4>
+          </div>
+          <button onClick={onClose} aria-label="Fechar" className="grid h-9 w-9 place-items-center border border-border text-muted-foreground hover:border-primary hover:text-primary">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="bg-black">
+          {view.kind === "trailer" && trailerUrl ? (
+            <VideoPlayer src={trailerUrl} poster={poster} autoPlay />
+          ) : (
+            <div className="relative aspect-video select-none" onContextMenu={(e) => e.preventDefault()}>
+              <img src={screenshots[view.index]} alt="" className="absolute inset-0 h-full w-full object-contain" draggable={false} />
+              {screenshots.length > 1 && (
+                <>
+                  <button type="button" onClick={() => setView({ kind: "shot", index: (view.index - 1 + screenshots.length) % screenshots.length })}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center bg-background/70 hover:text-primary" aria-label="Anterior">
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button type="button" onClick={() => setView({ kind: "shot", index: (view.index + 1) % screenshots.length })}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center bg-background/70 hover:text-primary" aria-label="Próximo">
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {(trailerUrl || screenshots.length > 0) && (
+          <div className="flex gap-2 overflow-x-auto border-t border-border p-3">
+            {trailerUrl && (
+              <button type="button" onClick={() => setView({ kind: "trailer", index: 0 })}
+                className={`relative aspect-video w-32 shrink-0 overflow-hidden border ${view.kind === "trailer" ? "border-primary" : "border-border"} bg-background`}>
+                {poster && <img src={poster} alt="" className="h-full w-full object-cover opacity-70" />}
+                <span className="absolute inset-0 grid place-items-center">
+                  <Play className="h-6 w-6 fill-primary text-primary" />
+                </span>
+              </button>
+            )}
+            {screenshots.map((url, i) => (
+              <button key={url} type="button" onClick={() => setView({ kind: "shot", index: i })}
+                className={`aspect-video w-32 shrink-0 overflow-hidden border ${view.kind === "shot" && view.index === i ? "border-primary" : "border-border"} bg-background`}>
+                <img src={url} alt="" className="h-full w-full object-cover" />
+              </button>
             ))}
           </div>
         )}
