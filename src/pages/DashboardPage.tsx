@@ -373,12 +373,6 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
                 </button>
               )}
             </div>
-            <input
-              value={form.trailer_url ?? ""}
-              onChange={(e) => setForm({ ...form, trailer_url: e.target.value || null })}
-              placeholder="https://…/trailer.mp4"
-              className={`${inputCls} mt-3 text-xs`}
-            />
           </div>
 
           <div>
