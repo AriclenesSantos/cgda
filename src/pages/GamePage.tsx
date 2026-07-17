@@ -48,7 +48,7 @@ const GamePage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-20">
-        {/* Hero / Trailer */}
+        {/* Hero: capa + info */}
         <section className="relative overflow-hidden border-b border-border">
           <div className="absolute inset-0 -z-10">
             <img src={gameCover(game)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20 blur-2xl" />
@@ -71,66 +71,73 @@ const GamePage = () => {
 
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              className="mt-6 grid gap-8 lg:grid-cols-[1.6fr_1fr]"
+              className="mt-6 flex justify-center"
             >
-              {/* Media */}
-              <div className="border border-border bg-black">
-                {game.trailer_url ? (
-                  <VideoPlayer src={game.trailer_url} poster={gameCover(game)} />
-                ) : (
-                  <div className="relative aspect-video">
-                    <img src={gameCover(game)} alt={game.title} className="absolute inset-0 h-full w-full object-cover" />
-                  </div>
+              {/* Capa responsiva ao formato da imagem original */}
+              <div className="flex max-w-full items-center justify-center border border-border bg-black">
+                <img
+                  src={gameCover(game)}
+                  alt={game.title}
+                  className="block h-auto max-h-[75vh] w-auto max-w-full object-contain"
+                />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Informações */}
+        <section className="py-12">
+          <div className="container grid gap-10 md:grid-cols-3">
+            <div className="md:col-span-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.22em] ${
+                  released ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"
+                }`}>{game.status}</span>
+                {game.genre && (
+                  <span className="border border-border px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{game.genre}</span>
                 )}
               </div>
+              <h1 className="mt-4 font-display text-4xl uppercase leading-none tracking-wide md:text-6xl">{game.title}</h1>
+              {studio && (
+                <Link to={`/estudio/${studio.id}`} className="mt-3 inline-block text-sm uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-primary">
+                  por <span className="text-foreground">{studio.name}</span>
+                </Link>
+              )}
 
-              {/* Info */}
-              <aside className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.22em] ${
-                    released ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"
-                  }`}>{game.status}</span>
-                  {game.genre && (
-                    <span className="border border-border px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{game.genre}</span>
-                  )}
+              <div className="mt-6 flex items-center gap-3 border-b border-border pb-3">
+                <span className="h-px w-8 bg-primary" />
+                <h2 className="font-display text-xs uppercase tracking-[0.3em] text-primary">Sobre o jogo</h2>
+              </div>
+              <p className="mt-5 whitespace-pre-line leading-relaxed text-muted-foreground">{game.description}</p>
+
+              {game.links?.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {game.links.map((l) => (
+                    <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 bg-primary px-4 py-2 text-xs uppercase tracking-[0.18em] text-primary-foreground transition-opacity hover:opacity-90">
+                      {l.label} <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ))}
                 </div>
-                <h1 className="font-display text-4xl uppercase leading-none tracking-wide md:text-5xl">{game.title}</h1>
-                {studio && (
-                  <Link to={`/estudio/${studio.id}`} className="text-sm uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-primary">
-                    por <span className="text-foreground">{studio.name}</span>
-                  </Link>
-                )}
-                <p className="text-sm leading-relaxed text-muted-foreground md:text-base">{game.description}</p>
+              )}
+            </div>
 
-                {game.platforms.length > 0 && (
-                  <div>
-                    <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Plataformas</div>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {game.platforms.map((p) => (
-                        <span key={p} className="border border-border bg-surface px-2 py-1 text-[10px] uppercase tracking-wider text-foreground">{p}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {game.links?.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {game.links.map((l) => (
-                      <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 bg-primary px-4 py-2 text-xs uppercase tracking-[0.18em] text-primary-foreground transition-opacity hover:opacity-90">
-                        {l.label} <ExternalLink className="h-3 w-3" />
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </aside>
-            </motion.div>
+            <aside className="border border-border bg-surface p-5 md:self-start">
+              <h3 className="font-display text-sm uppercase tracking-[0.22em] text-muted-foreground">Ficha</h3>
+              <dl className="mt-4 space-y-3 text-sm">
+                <Row label="Estado" value={game.status} />
+                {game.genre && <Row label="Género" value={game.genre} />}
+                {studio && <Row label="Estúdio" value={studio.name} />}
+                {studio?.location && <Row label="Origem" value={studio.location} />}
+                {game.platforms.length > 0 && <Row label="Plataformas" value={game.platforms.join(" · ")} />}
+              </dl>
+            </aside>
           </div>
         </section>
 
         {/* Screenshots */}
         {shots.length > 0 && (
-          <section className="py-16">
+          <section className="py-12">
             <div className="container">
               <div className="flex items-center gap-3 border-b border-border pb-4">
                 <span className="h-px w-8 bg-primary" />
@@ -149,28 +156,21 @@ const GamePage = () => {
           </section>
         )}
 
-        {/* Sobre / Detalhes */}
-        <section className="py-12 pb-24">
-          <div className="container grid gap-8 md:grid-cols-3">
-            <div className="md:col-span-2">
+        {/* Trailer */}
+        {game.trailer_url && (
+          <section className="py-12 pb-24">
+            <div className="container">
               <div className="flex items-center gap-3 border-b border-border pb-4">
                 <span className="h-px w-8 bg-primary" />
-                <h2 className="font-display text-xs uppercase tracking-[0.3em] text-primary">Sobre o jogo</h2>
+                <h2 className="font-display text-xs uppercase tracking-[0.3em] text-primary">Trailer</h2>
               </div>
-              <p className="mt-6 whitespace-pre-line text-muted-foreground">{game.description}</p>
+              <div className="mt-8 border border-border bg-black">
+                <VideoPlayer src={game.trailer_url} poster={gameCover(game)} />
+              </div>
             </div>
-            <aside className="border border-border bg-surface p-5">
-              <h3 className="font-display text-sm uppercase tracking-[0.22em] text-muted-foreground">Ficha</h3>
-              <dl className="mt-4 space-y-3 text-sm">
-                <Row label="Estado" value={game.status} />
-                {game.genre && <Row label="Género" value={game.genre} />}
-                {studio && <Row label="Estúdio" value={studio.name} />}
-                {studio?.location && <Row label="Origem" value={studio.location} />}
-                {game.platforms.length > 0 && <Row label="Plataformas" value={game.platforms.join(" · ")} />}
-              </dl>
-            </aside>
-          </div>
-        </section>
+          </section>
+        )}
+
 
         {/* Outros do estúdio */}
         {others.length > 0 && (
