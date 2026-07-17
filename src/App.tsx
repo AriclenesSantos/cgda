@@ -12,6 +12,7 @@ import DashboardPage from "./pages/DashboardPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "@/lib/auth";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
