@@ -131,8 +131,8 @@ const StudioPage = () => {
           <section className="py-12">
             <div className="container">
               <h2 className="font-display text-3xl uppercase tracking-wide"><span className="text-primary">▸</span> Lançados</h2>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {launched.map((g) => <GameDetailCard key={g.id} game={g} />)}
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {launched.map((g) => <GameCard key={g.id} game={g} studio={studio} />)}
               </div>
             </div>
           </section>
@@ -142,8 +142,8 @@ const StudioPage = () => {
           <section className="py-12 pb-24">
             <div className="container">
               <h2 className="font-display text-3xl uppercase tracking-wide"><span className="text-accent">▸</span> Em Desenvolvimento</h2>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {inDev.map((g) => <GameDetailCard key={g.id} game={g} />)}
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {inDev.map((g) => <GameCard key={g.id} game={g} studio={studio} />)}
               </div>
             </div>
           </section>
