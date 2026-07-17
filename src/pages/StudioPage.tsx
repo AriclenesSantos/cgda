@@ -153,3 +153,4 @@ const StudioPage = () => {
   );
 };
 
+export default StudioPage;
