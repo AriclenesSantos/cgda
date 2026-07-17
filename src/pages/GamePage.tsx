@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Loader2, Play, X } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Loader2, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import VideoPlayer from "@/components/VideoPlayer";
 import { useGame, useGames, gameCover } from "@/lib/catalog";
 import { GameCard } from "@/components/GamesCarousel";
+
 
 const GamePage = () => {
   const { id } = useParams<{ id: string }>();
