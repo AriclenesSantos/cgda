@@ -159,6 +159,29 @@ export function useStudio(id?: string) {
   return { studio: data, loading };
 }
 
+export function useGame(id?: string) {
+  const [game, setGame] = useState<GameRow | null>(null);
+  const [studio, setStudio] = useState<StudioRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!id) { setLoading(false); return; }
+    let alive = true;
+    (async () => {
+      const { data: g } = await supabase.from("games").select("*").eq("id", id).maybeSingle();
+      if (!alive) return;
+      if (!g) { setLoading(false); return; }
+      const row = toGameRow(g as Tables<"games">);
+      setGame(row);
+      const { data: s } = await supabase.from("studios").select("*").eq("id", row.studio_id).maybeSingle();
+      if (!alive) return;
+      setStudio(s as StudioRow | null);
+      setLoading(false);
+    })();
+    return () => { alive = false; };
+  }, [id]);
+  return { game, studio, loading };
+}
+
 /** Upload to studio-assets and return a long-lived signed URL stored in the row. */
 export async function uploadStudioAsset(
   studioId: string,

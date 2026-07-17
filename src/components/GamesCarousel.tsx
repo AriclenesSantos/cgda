@@ -65,7 +65,7 @@ export function GameCard({ game, studio }: { game: GameRow; studio?: StudioRow }
   const released = game.status === "Lançado";
   return (
     <Link
-      to={`/estudio/${game.studio_id}`}
+      to={`/jogo/${game.id}`}
       className="group relative flex h-full flex-col overflow-hidden border border-border bg-surface transition-all duration-300 hover:border-primary/60 hover-lift"
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-background">
