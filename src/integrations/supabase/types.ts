@@ -73,6 +73,96 @@ export type Database = {
           },
         ]
       }
+      hero_slides: {
+        Row: {
+          active: boolean
+          created_at: string
+          game_id: string | null
+          id: string
+          image_url: string | null
+          link_url: string | null
+          news_id: string | null
+          sort_order: number
+          subtitle: string | null
+          title: string | null
+          type: Database["public"]["Enums"]["hero_slide_type"]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          game_id?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          news_id?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          type: Database["public"]["Enums"]["hero_slide_type"]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          game_id?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          news_id?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          type?: Database["public"]["Enums"]["hero_slide_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hero_slides_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hero_slides_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news: {
+        Row: {
+          content: string
+          cover_url: string | null
+          created_at: string
+          id: string
+          published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           created_at: string
@@ -200,6 +290,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "studio_owner"
+      hero_slide_type: "game" | "news" | "ad"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -328,6 +419,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "studio_owner"],
+      hero_slide_type: ["game", "news", "ad"],
     },
   },
 } as const
