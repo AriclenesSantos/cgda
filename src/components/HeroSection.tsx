@@ -1,82 +1,232 @@
-import { motion } from "framer-motion";
-import { ArrowRight, Play, Users, Building2, Gamepad2 } from "lucide-react";
-import { useCounts, useSiteStat } from "@/lib/catalog";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import { Link } from "react-router-dom";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useHeroSlides, useGames, useNews, gameCover, type HeroSlideRow, type GameRow, type NewsRow } from "@/lib/catalog";
+
+type Resolved =
+  | { kind: "game"; slide: HeroSlideRow; game: GameRow }
+  | { kind: "news"; slide: HeroSlideRow; news: NewsRow }
+  | { kind: "ad"; slide: HeroSlideRow };
 
 export default function HeroSection() {
-  const { studios: studioCount, games: gameCount } = useCounts();
-  const { value: membersRaw } = useSiteStat("members_count");
-  const { value: gamesLabelRaw } = useSiteStat("games_label");
+  const { slides } = useHeroSlides(true);
+  const { games } = useGames();
+  const { news } = useNews();
 
-  const members = membersRaw ? `+${membersRaw}` : "+120";
-  const gamesLabel = gamesLabelRaw || `${gameCount}+`;
+  const resolved = useMemo<Resolved[]>(() => {
+    const gameMap = Object.fromEntries(games.map((g) => [g.id, g]));
+    const newsMap = Object.fromEntries(news.map((n) => [n.id, n]));
+    return slides.flatMap<Resolved>((s) => {
+      if (s.type === "game") {
+        const g = s.game_id ? gameMap[s.game_id] : undefined;
+        return g ? [{ kind: "game", slide: s, game: g }] : [];
+      }
+      if (s.type === "news") {
+        const n = s.news_id ? newsMap[s.news_id] : undefined;
+        return n ? [{ kind: "news", slide: s, news: n }] : [];
+      }
+      return s.image_url ? [{ kind: "ad", slide: s }] : [];
+    });
+  }, [slides, games, news]);
+
+  const autoplay = useRef(Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [autoplay.current]);
+  const [selected, setSelected] = useState(0);
+  const [snaps, setSnaps] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setSelected(emblaApi.selectedScrollSnap());
+    setSnaps(emblaApi.scrollSnapList());
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", () => {
+      setSnaps(emblaApi.scrollSnapList());
+      onSelect();
+    });
+    onSelect();
+  }, [emblaApi, resolved.length]);
+
+  const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
+  const prev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const next = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
+  if (!resolved.length) return <FallbackHero />;
 
   return (
-    <section className="relative isolate overflow-hidden bg-background pt-28 pb-20 md:pt-36 md:pb-28">
-      {/* Fundo sólido — pronto para receber ilustrações depois */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-grid opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-      </div>
-
-      <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl"
-        >
-          <h1 className="font-display text-6xl uppercase leading-[0.95] tracking-wide sm:text-7xl md:text-8xl">
-            Os jogos de
-            <br />
-            <span className="text-ember">Angola</span> jogam-se aqui.
-          </h1>
-
-          <p className="mt-6 max-w-xl text-base text-muted-foreground md:text-lg">
-            A casa oficial dos estúdios, criadores e jogadores angolanos. Descobre
-            todos os jogos feitos em Angola — lançados ou em desenvolvimento —
-            num só lugar.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="#jogos"
-              className="clip-tab group inline-flex items-center gap-2 bg-ember px-6 py-3 font-display text-sm uppercase tracking-[0.2em] text-primary-foreground shadow-ember transition-transform hover:scale-[1.03]"
-            >
-              <Play className="h-4 w-4 fill-current" />
-              Ver catálogo
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
-            <a
-              href="#estudios"
-              className="inline-flex items-center gap-2 border border-border bg-surface/70 px-6 py-3 font-display text-sm uppercase tracking-[0.2em] text-foreground backdrop-blur-sm transition-colors hover:border-primary/60 hover:text-primary"
-            >
-              Conhecer estúdios
-            </a>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-          className="mt-16 grid max-w-3xl grid-cols-3 divide-x divide-border border border-border bg-surface/60 backdrop-blur-sm"
-        >
-          {[
-            { icon: Users, value: members, label: "Membros" },
-            { icon: Building2, value: `${studioCount || 0}`, label: "Estúdios" },
-            { icon: Gamepad2, value: gamesLabel, label: "Jogos" },
-          ].map((s) => (
-            <div key={s.label} className="flex items-center gap-3 px-5 py-4">
-              <s.icon className="h-5 w-5 text-primary" />
-              <div className="flex flex-col leading-none">
-                <span className="font-display text-3xl tracking-wide text-foreground">{s.value}</span>
-                <span className="mt-1 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                  {s.label}
-                </span>
-              </div>
+    <section className="relative w-full">
+      <div className="relative overflow-hidden" ref={emblaRef}>
+        <div className="flex">
+          {resolved.map((r, i) => (
+            <div key={r.slide.id} className="relative min-w-0 flex-[0_0_100%]">
+              <Slide item={r} isActive={i === selected} />
             </div>
           ))}
-        </motion.div>
+        </div>
+
+        {resolved.length > 1 && (
+          <>
+            <button
+              onClick={prev}
+              aria-label="Anterior"
+              className="absolute left-3 top-1/2 hidden -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 p-3 text-white backdrop-blur transition hover:bg-black/60 md:inline-flex"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={next}
+              aria-label="Próximo"
+              className="absolute right-3 top-1/2 hidden -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 p-3 text-white backdrop-blur transition hover:bg-black/60 md:inline-flex"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+
+            <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+              {snaps.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => scrollTo(i)}
+                  aria-label={`Ir para slide ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === selected ? "w-8 bg-primary" : "w-4 bg-white/50 hover:bg-white/80"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Slide({ item, isActive }: { item: Resolved; isActive: boolean }) {
+  return (
+    <div className="relative h-[80vh] min-h-[520px] w-full overflow-hidden bg-black">
+      <Media item={item} isActive={isActive} />
+      {item.kind !== "ad" && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 pb-16 md:pb-20">
+            <div className="container">
+              {item.kind === "game" && <GameOverlay item={item} />}
+              {item.kind === "news" && <NewsOverlay item={item} />}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Media({ item, isActive }: { item: Resolved; isActive: boolean }) {
+  const src = mediaSrc(item);
+  const isVideo = !!src && /\.(mp4|webm|mov)(\?|$)/i.test(src);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!isVideo) return;
+    const v = videoRef.current;
+    if (!v) return;
+    if (isActive) {
+      v.currentTime = 0;
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  }, [isActive, isVideo]);
+
+  if (!src) return <div className="absolute inset-0 bg-surface" />;
+  if (isVideo) {
+    return (
+      <video
+        ref={videoRef}
+        src={src}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        controls={false}
+        disablePictureInPicture
+        onContextMenu={(e) => e.preventDefault()}
+        className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+      />
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover"
+      loading="eager"
+    />
+  );
+}
+
+function mediaSrc(item: Resolved): string {
+  if (item.kind === "game") {
+    return item.slide.image_url || item.game.trailer_url || gameCover(item.game);
+  }
+  if (item.kind === "news") return item.slide.image_url || item.news.cover_url || "";
+  return item.slide.image_url || "";
+}
+
+function GameOverlay({ item }: { item: Extract<Resolved, { kind: "game" }> }) {
+  const title = item.slide.title || item.game.title;
+  const subtitle = item.slide.subtitle || item.game.genre || "";
+  return (
+    <div className="max-w-2xl text-white">
+      <div className="mb-3 inline-flex items-center gap-2 border border-white/20 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.24em] backdrop-blur">
+        <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Destaque
+      </div>
+      <h2 className="font-display text-4xl uppercase leading-[0.95] tracking-wide sm:text-5xl md:text-6xl">
+        {title}
+      </h2>
+      {subtitle && <p className="mt-3 max-w-xl text-sm text-white/80 md:text-base">{subtitle}</p>}
+      <Link
+        to={`/jogo/${item.game.id}`}
+        className="clip-tab group mt-6 inline-flex items-center gap-2 bg-ember px-6 py-3 font-display text-sm uppercase tracking-[0.2em] text-primary-foreground shadow-ember"
+      >
+        Ver mais <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+      </Link>
+    </div>
+  );
+}
+
+function NewsOverlay({ item }: { item: Extract<Resolved, { kind: "news" }> }) {
+  const title = item.slide.title || item.news.title;
+  const subtitle = item.slide.subtitle || "";
+  return (
+    <div className="max-w-2xl text-white">
+      <div className="mb-3 inline-flex items-center gap-2 border border-white/20 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.24em] backdrop-blur">
+        <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Notícia
+      </div>
+      <h2 className="font-display text-4xl uppercase leading-[0.95] tracking-wide sm:text-5xl md:text-6xl">
+        {title}
+      </h2>
+      {subtitle && <p className="mt-3 max-w-xl text-sm text-white/80 md:text-base">{subtitle}</p>}
+      <Link
+        to={`/noticia/${item.news.id}`}
+        className="clip-tab group mt-6 inline-flex items-center gap-2 bg-ember px-6 py-3 font-display text-sm uppercase tracking-[0.2em] text-primary-foreground shadow-ember"
+      >
+        Ver mais <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+      </Link>
+    </div>
+  );
+}
+
+function FallbackHero() {
+  return (
+    <section className="relative isolate overflow-hidden bg-background pt-28 pb-20 md:pt-36 md:pb-28">
+      <div className="container">
+        <h1 className="font-display text-6xl uppercase leading-[0.95] tracking-wide sm:text-7xl md:text-8xl">
+          Os jogos de <span className="text-ember">Angola</span> jogam-se aqui.
+        </h1>
+        <p className="mt-6 max-w-xl text-base text-muted-foreground md:text-lg">
+          A casa oficial dos estúdios, criadores e jogadores angolanos.
+        </p>
       </div>
     </section>
   );
