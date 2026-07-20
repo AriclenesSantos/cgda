@@ -38,6 +38,79 @@ export interface PartnerRow {
   sort_order: number;
 }
 
+export interface NewsRow {
+  id: string;
+  title: string;
+  cover_url: string | null;
+  content: string;
+  published: boolean;
+  created_at: string;
+}
+
+export type HeroSlideType = "game" | "news" | "ad";
+export interface HeroSlideRow {
+  id: string;
+  type: HeroSlideType;
+  game_id: string | null;
+  news_id: string | null;
+  title: string | null;
+  subtitle: string | null;
+  image_url: string | null;
+  link_url: string | null;
+  sort_order: number;
+  active: boolean;
+}
+
+export function useHeroSlides(onlyActive = true) {
+  const [slides, setSlides] = useState<HeroSlideRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    let q = (supabase as any).from("hero_slides").select("*").order("sort_order");
+    if (onlyActive) q = q.eq("active", true);
+    q.then(({ data }: any) => {
+      if (!alive) return;
+      setSlides((data as HeroSlideRow[]) ?? []);
+      setLoading(false);
+    });
+    return () => { alive = false; };
+  }, [onlyActive]);
+  return { slides, loading };
+}
+
+export function useNews() {
+  const [news, setNews] = useState<NewsRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let alive = true;
+    (supabase as any).from("news").select("*").order("created_at", { ascending: false })
+      .then(({ data }: any) => {
+        if (!alive) return;
+        setNews((data as NewsRow[]) ?? []);
+        setLoading(false);
+      });
+    return () => { alive = false; };
+  }, []);
+  return { news, loading };
+}
+
+export function useNewsItem(id?: string) {
+  const [item, setItem] = useState<NewsRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!id) { setLoading(false); return; }
+    let alive = true;
+    (supabase as any).from("news").select("*").eq("id", id).maybeSingle()
+      .then(({ data }: any) => {
+        if (!alive) return;
+        setItem(data as NewsRow | null);
+        setLoading(false);
+      });
+    return () => { alive = false; };
+  }, [id]);
+  return { item, loading };
+}
+
 export function usePartners() {
   const [data, setData] = useState<PartnerRow[]>([]);
   const [loading, setLoading] = useState(true);
