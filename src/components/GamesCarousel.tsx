@@ -22,7 +22,7 @@ export default function GamesCarousel() {
     <section id="jogos" className="relative py-24">
       <div className="container">
         <SectionHeader
-          eyebrow="02 · Catálogo"
+          eyebrow="02 · Jogos"
           title="Jogos angolanos"
           subtitle="Cada jogo abaixo foi feito por angolanos, para o mundo."
           actions={
@@ -50,7 +50,7 @@ export default function GamesCarousel() {
         <div ref={emblaRef} className="mt-10 overflow-hidden">
           <div className="flex gap-5">
             {filtered.map((g) => (
-              <div key={g.id} className="min-w-[280px] max-w-[280px] shrink-0 sm:min-w-[320px] sm:max-w-[320px]">
+              <div key={g.id} className="min-w-[180px] max-w-[180px] shrink-0 sm:min-w-[220px] sm:max-w-[220px]">
                 <GameCard game={g} studio={studioMap[g.studio_id]} />
               </div>
             ))}
@@ -75,18 +75,18 @@ export function GameCard({ game, studio }: { game: GameRow; studio?: StudioRow }
         />
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 border-t border-border p-4">
+      <div className="flex flex-1 flex-col gap-1.5 border-t border-border p-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground truncate">{studio?.name}</span>
-          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] ${
+          <span className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground truncate">{studio?.name}</span>
+          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.18em] ${
             released ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"
           }`}>
             <span className="h-1 w-1 rounded-full bg-current" />
             {released ? "Lançado" : "Em Dev"}
           </span>
         </div>
-        <h3 className="font-display text-lg uppercase leading-tight tracking-wide text-foreground line-clamp-1">{game.title}</h3>
-        <div className="mt-auto flex flex-wrap gap-1 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <h3 className="font-display text-sm uppercase leading-tight tracking-wide text-foreground line-clamp-1">{game.title}</h3>
+        <div className="mt-auto flex flex-wrap gap-1 pt-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
           {game.genre && <span>{game.genre}</span>}
           {game.genre && game.platforms.length > 0 && <span className="opacity-40">·</span>}
           <span className="truncate">{game.platforms.slice(0, 2).join(" · ")}</span>

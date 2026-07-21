@@ -12,12 +12,12 @@ export default function StudiosSection() {
     <section id="estudios" className="relative py-24">
       <div className="container">
         <SectionHeader
-          eyebrow="01 · Estúdios"
+          eyebrow="03 · Estúdios"
           title="Quem está a construir"
           subtitle="Estúdios angolanos a fazer história — do mobile ao Steam."
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {studios.map((s, i) => {
             const count = countFor(s.id);
             return (
@@ -41,24 +41,24 @@ export default function StudiosSection() {
                     />
                   </div>
 
-                  <div className="flex flex-1 flex-col gap-3 border-t border-border p-5">
+                  <div className="flex flex-1 flex-col gap-2 border-t border-border p-3">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-display text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                      <span className="font-display text-[9px] uppercase tracking-[0.25em] text-muted-foreground">
                         Studio · {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span className="grid h-8 w-8 place-items-center rounded-full border border-border bg-background/50 text-muted-foreground transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
-                        <ArrowUpRight className="h-4 w-4" />
+                      <span className="grid h-7 w-7 place-items-center rounded-full border border-border bg-background/50 text-muted-foreground transition-all group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                        <ArrowUpRight className="h-3.5 w-3.5" />
                       </span>
                     </div>
 
-                    <h3 className="font-display text-2xl uppercase leading-none tracking-wide text-foreground">
+                    <h3 className="font-display text-base uppercase leading-tight tracking-wide text-foreground sm:text-lg">
                       {s.name}
                     </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-xs text-muted-foreground line-clamp-2">
                       {s.tagline || s.description}
                     </p>
 
-                    <div className="mt-auto flex items-center gap-4 border-t border-border pt-3 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    <div className="mt-auto flex items-center gap-3 border-t border-border pt-2 text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
                       <span>
                         <span className="text-primary font-semibold">{count}</span> projeto{count !== 1 ? "s" : ""}
                       </span>
