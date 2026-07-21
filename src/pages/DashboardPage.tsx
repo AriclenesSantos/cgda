@@ -229,7 +229,7 @@ function GamesTab({ studioId, games, onChange }: { studioId: string; games: Game
 function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; game: GameRow | null; onClose: () => void; onSaved: () => void }) {
   const blank: GameRow = {
     id: "", studio_id: studioId, title: "", description: "", genre: "", status: "Lançado",
-    platforms: [], cover_url: null, trailer_url: null, screenshots: [], links: [], sort_order: 0,
+    platforms: [], cover_url: null, trailer_url: null, trailer_external_url: null, screenshots: [], links: [], sort_order: 0,
   };
   const [form, setForm] = useState<GameRow>(game ?? blank);
   const [platformsText, setPlatformsText] = useState((game?.platforms ?? []).join(", "));
@@ -295,7 +295,7 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
     const payload = {
       title: form.title, description: form.description, genre: form.genre,
       status: form.status, platforms, cover_url: form.cover_url,
-      trailer_url: form.trailer_url, screenshots: form.screenshots ?? [],
+      trailer_url: form.trailer_url, trailer_external_url: form.trailer_external_url, screenshots: form.screenshots ?? [],
       links: links as any,
     };
     let error;
@@ -355,15 +355,15 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
         {/* Trailer & screenshots */}
         <div className="mt-6 grid gap-5 border-t border-border pt-5 md:grid-cols-2">
           <div>
-            <div className="font-display text-xs uppercase tracking-[0.22em] text-primary">Trailer</div>
-            <p className="mt-1 text-[11px] text-muted-foreground">MP4/WebM até 200MB. Ou cole um URL directo.</p>
+            <div className="font-display text-xs uppercase tracking-[0.22em] text-primary">Trailer (Ficheiro)</div>
+            <p className="mt-1 text-[11px] text-muted-foreground">MP4/WebM até 200MB.</p>
             {form.trailer_url && (
               <video src={form.trailer_url} controls className="mt-3 aspect-video w-full border border-border bg-black" />
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-3 py-2 text-[10px] uppercase tracking-[0.22em] hover:border-primary hover:text-primary">
                 {uploadingTrailer ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                {form.trailer_url ? "Trocar trailer" : "Enviar trailer"}
+                {form.trailer_url ? "Trocar ficheiro" : "Enviar ficheiro"}
                 <input type="file" accept="video/*" className="hidden" onChange={onTrailer} />
               </label>
               {form.trailer_url && (
@@ -372,6 +372,18 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
                   <Trash2 className="h-3 w-3" /> Remover
                 </button>
               )}
+            </div>
+
+            <div className="mt-6">
+              <div className="font-display text-xs uppercase tracking-[0.22em] text-primary">Trailer (Link Externo)</div>
+              <p className="mt-1 text-[11px] text-muted-foreground">YouTube, Vimeo ou link directo.</p>
+              <input 
+                type="url" 
+                placeholder="https://www.youtube.com/watch?v=..." 
+                value={form.trailer_external_url ?? ""} 
+                onChange={(e) => setForm({ ...form, trailer_external_url: e.target.value || null })}
+                className={`${inputCls} mt-2`}
+              />
             </div>
           </div>
 

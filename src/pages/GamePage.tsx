@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Loader2, X } from "
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import VideoPlayer from "@/components/VideoPlayer";
+import VideoEmbed from "@/components/VideoEmbed";
 import { useGame, useGames, gameCover } from "@/lib/catalog";
 import { GameCard } from "@/components/GamesCarousel";
 
@@ -157,15 +158,19 @@ const GamePage = () => {
         )}
 
         {/* Trailer */}
-        {game.trailer_url && (
+        {(game.trailer_external_url || game.trailer_url) && (
           <section className="py-12 pb-24">
             <div className="container">
               <div className="flex items-center gap-3 border-b border-border pb-4">
                 <span className="h-px w-8 bg-primary" />
                 <h2 className="font-display text-xs uppercase tracking-[0.3em] text-primary">Trailer</h2>
               </div>
-              <div className="mt-8 border border-border bg-black">
-                <VideoPlayer src={game.trailer_url} poster={gameCover(game)} />
+              <div className="mt-8 border border-border bg-black overflow-hidden">
+                {game.trailer_external_url ? (
+                  <VideoEmbed url={game.trailer_external_url} poster={gameCover(game)} />
+                ) : (
+                  <VideoPlayer src={game.trailer_url!} poster={gameCover(game)} />
+                )}
               </div>
             </div>
           </section>

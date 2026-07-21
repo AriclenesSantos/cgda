@@ -24,6 +24,7 @@ export interface GameRow {
   platforms: string[];
   cover_url: string | null;
   trailer_url: string | null;
+  trailer_external_url: string | null;
   screenshots: string[];
   links: { label: string; url: string }[];
   sort_order: number;
@@ -190,10 +191,11 @@ function normalizeLinks(raw: Tables<"games">["links"]): GameLink[] {
   );
 }
 
-function toGameRow(r: Tables<"games"> & { trailer_url?: string | null; screenshots?: string[] | null }): GameRow {
+function toGameRow(r: Tables<"games"> & { trailer_url?: string | null; trailer_external_url?: string | null; screenshots?: string[] | null }): GameRow {
   return {
     ...r,
     trailer_url: r.trailer_url ?? null,
+    trailer_external_url: r.trailer_external_url ?? null,
     screenshots: Array.isArray(r.screenshots) ? r.screenshots : [],
     links: normalizeLinks(r.links),
   };

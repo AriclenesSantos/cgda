@@ -167,6 +167,8 @@ function Media({ item, isActive }: { item: Resolved; isActive: boolean }) {
 
 function mediaSrc(item: Resolved): string {
   if (item.kind === "game") {
+    // Para o Hero, preferimos ficheiro directo (video de fundo) ou imagem. 
+    // Links externos (YouTube) não funcionam bem como fundo de Hero sem iframe complexo.
     return item.slide.image_url || item.game.trailer_url || gameCover(item.game);
   }
   if (item.kind === "news") return item.slide.image_url || item.news.cover_url || "";

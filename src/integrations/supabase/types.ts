@@ -29,6 +29,7 @@ export type Database = {
           studio_id: string
           title: string
           trailer_url: string | null
+          trailer_external_url: string | null
           updated_at: string
         }
         Insert: {
@@ -45,6 +46,7 @@ export type Database = {
           studio_id: string
           title: string
           trailer_url?: string | null
+          trailer_external_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -61,6 +63,7 @@ export type Database = {
           studio_id?: string
           title?: string
           trailer_url?: string | null
+          trailer_external_url?: string | null
           updated_at?: string
         }
         Relationships: [
