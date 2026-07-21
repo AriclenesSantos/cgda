@@ -50,7 +50,7 @@ export default function GamesCarousel() {
         <div ref={emblaRef} className="mt-10 overflow-hidden">
           <div className="flex gap-5">
             {filtered.map((g) => (
-              <div key={g.id} className="min-w-[280px] max-w-[280px] shrink-0 sm:min-w-[320px] sm:max-w-[320px]">
+              <div key={g.id} className="min-w-[180px] max-w-[180px] shrink-0 sm:min-w-[220px] sm:max-w-[220px]">
                 <GameCard game={g} studio={studioMap[g.studio_id]} />
               </div>
             ))}
