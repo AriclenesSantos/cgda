@@ -22,7 +22,7 @@ export default function GamesCarousel() {
     <section id="jogos" className="relative py-24">
       <div className="container">
         <SectionHeader
-          eyebrow="02 · Catálogo"
+          eyebrow="02 · Jogos"
           title="Jogos angolanos"
           subtitle="Cada jogo abaixo foi feito por angolanos, para o mundo."
           actions={
