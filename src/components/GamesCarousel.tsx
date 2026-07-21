@@ -75,18 +75,18 @@ export function GameCard({ game, studio }: { game: GameRow; studio?: StudioRow }
         />
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 border-t border-border p-4">
+      <div className="flex flex-1 flex-col gap-1.5 border-t border-border p-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground truncate">{studio?.name}</span>
-          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] ${
+          <span className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground truncate">{studio?.name}</span>
+          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.18em] ${
             released ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"
           }`}>
             <span className="h-1 w-1 rounded-full bg-current" />
             {released ? "Lançado" : "Em Dev"}
           </span>
         </div>
-        <h3 className="font-display text-lg uppercase leading-tight tracking-wide text-foreground line-clamp-1">{game.title}</h3>
-        <div className="mt-auto flex flex-wrap gap-1 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <h3 className="font-display text-sm uppercase leading-tight tracking-wide text-foreground line-clamp-1">{game.title}</h3>
+        <div className="mt-auto flex flex-wrap gap-1 pt-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
           {game.genre && <span>{game.genre}</span>}
           {game.genre && game.platforms.length > 0 && <span className="opacity-40">·</span>}
           <span className="truncate">{game.platforms.slice(0, 2).join(" · ")}</span>
