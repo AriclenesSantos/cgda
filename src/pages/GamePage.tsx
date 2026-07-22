@@ -76,9 +76,16 @@ const GamePage = () => {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="hidden lg:block aspect-[3/4] w-full overflow-hidden border-4 border-white/5 bg-black shadow-2xl shadow-black/50"
+                className="aspect-[3/4] w-full max-w-[280px] lg:max-w-none mx-auto lg:mx-0 overflow-hidden border-4 border-white/5 bg-black shadow-2xl shadow-black/50"
               >
-                <img src={gameCover(game)} alt={game.title} className="h-full w-full object-cover" />
+                <img 
+                  src={gameCover(game)} 
+                  alt={game.title} 
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/placeholder.svg";
+                  }}
+                />
               </motion.div>
 
               {/* Game Basic Info */}
