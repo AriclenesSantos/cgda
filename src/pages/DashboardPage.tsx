@@ -260,8 +260,9 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
     try {
       const id = form.id || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60) || crypto.randomUUID();
       const url = await uploadStudioAsset(studioId, f, "trailer", id);
-      setForm((s) => ({ ...s, trailer_url: url }));
-      toast.success("Trailer enviado. Lembre-se de salvar.");
+      // Se carregar um ficheiro, limpa o link externo
+      setForm((s) => ({ ...s, trailer_url: url, trailer_external_url: null }));
+      toast.success("Trailer enviado. Link externo removido.");
     } catch (err: any) { toast.error("Falha: " + translateError(err)); }
     finally { setUploadingTrailer(false); }
   }
@@ -361,11 +362,12 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
               <video src={form.trailer_url} controls className="mt-3 aspect-video w-full border border-border bg-black" />
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-3 py-2 text-[10px] uppercase tracking-[0.22em] hover:border-primary hover:text-primary">
+              <label className={`inline-flex cursor-pointer items-center gap-2 border border-border px-3 py-2 text-[10px] uppercase tracking-[0.22em] hover:border-primary hover:text-primary ${form.trailer_external_url ? "opacity-50 grayscale pointer-events-none" : ""}`}>
                 {uploadingTrailer ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                 {form.trailer_url ? "Trocar ficheiro" : "Enviar ficheiro"}
-                <input type="file" accept="video/*" className="hidden" onChange={onTrailer} />
+                <input type="file" accept="video/*" className="hidden" onChange={onTrailer} disabled={!!form.trailer_external_url} />
               </label>
+              {form.trailer_external_url && <p className="mt-1 w-full text-[10px] text-ember">Remova o link abaixo para carregar um ficheiro.</p>}
               {form.trailer_url && (
                 <button type="button" onClick={() => setForm({ ...form, trailer_url: null })}
                   className="inline-flex items-center gap-1 border border-border px-3 py-2 text-[10px] uppercase tracking-[0.22em] hover:border-primary hover:text-primary">
@@ -381,9 +383,16 @@ function GameEditor({ studioId, game, onClose, onSaved }: { studioId: string; ga
                 type="url" 
                 placeholder="https://www.youtube.com/watch?v=..." 
                 value={form.trailer_external_url ?? ""} 
-                onChange={(e) => setForm({ ...form, trailer_external_url: e.target.value || null })}
-                className={`${inputCls} mt-2`}
+                onChange={(e) => {
+                  const val = e.target.value || null;
+                  // Se colar um link, limpa o ficheiro carregado
+                  setForm({ ...form, trailer_external_url: val, trailer_url: val ? null : form.trailer_url });
+                  if (val && form.trailer_url) toast.info("Ficheiro de vídeo removido para usar o link.");
+                }}
+                className={`${inputCls} mt-2 ${form.trailer_url ? "opacity-50 grayscale pointer-events-none" : ""}`}
+                disabled={!!form.trailer_url}
               />
+              {form.trailer_url && <p className="mt-1 text-[10px] text-ember">Remova o ficheiro acima para usar um link externo.</p>}
             </div>
           </div>
 
