@@ -31,7 +31,7 @@ export default function HeroSection() {
     });
   }, [slides, games, news]);
 
-  const autoplay = useRef(Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const autoplay = useRef(Autoplay({ delay: 10000, stopOnInteraction: false, stopOnMouseEnter: true }));
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [autoplay.current]);
   const [selected, setSelected] = useState(0);
   const [snaps, setSnaps] = useState<number[]>([]);
@@ -157,12 +157,13 @@ function Media({ item, isActive }: { item: Resolved; isActive: boolean }) {
 
   if (ytId && isActive) {
     return (
-      <div className="absolute inset-0 h-full w-full pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 h-full w-full pointer-events-none overflow-hidden bg-black">
         <iframe
-          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&rel=0&showinfo=0&iv_load_policy=3&modestbranding=1`}
-          className="absolute h-[150%] w-[150%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&rel=0&showinfo=0&iv_load_policy=3&modestbranding=1&disablekb=1&fs=0&autohide=1`}
+          className="absolute h-[115%] w-[115%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.2]"
           allow="autoplay; encrypted-media"
           title="Hero Video"
+          style={{ border: 'none' }}
         />
       </div>
     );
