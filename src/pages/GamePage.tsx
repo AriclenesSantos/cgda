@@ -67,7 +67,7 @@ const GamePage = () => {
               className="absolute inset-0 h-full w-full object-cover scale-110 blur-xl opacity-30" 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/40 dark:bg-black/60" />
           </div>
 
           <div className="container relative z-10 pb-12">
@@ -123,10 +123,10 @@ const GamePage = () => {
                   >
                     <Link 
                       to={`/estudio/${studio.id}`} 
-                      className="group flex items-center gap-3 text-white/80 hover:text-primary transition-colors"
+                      className="group flex items-center gap-3 text-white/90 hover:text-primary transition-colors"
                     >
-                      <div className="h-10 w-10 overflow-hidden rounded-full border border-white/20 bg-white/10 p-1 backdrop-blur-sm">
-                        <img src={studio.logo_url || "/placeholder.svg"} alt={studio.name} className="h-full w-full object-contain" />
+                      <div className="h-10 w-10 overflow-hidden rounded-full border border-white/30 bg-white/20 p-0.5 backdrop-blur-md">
+                        <img src={studio.logo_url || "/placeholder.svg"} alt={studio.name} className="h-full w-full object-cover rounded-full" />
                       </div>
                       <span className="text-sm uppercase tracking-widest">Desenvolvido por <b className="text-white group-hover:text-primary transition-colors">{studio.name}</b></span>
                     </Link>

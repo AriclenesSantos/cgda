@@ -55,10 +55,10 @@ const StudioPage = () => {
             <img 
               src={studioCover(studio)} 
               alt="" 
-              className="absolute inset-0 h-full w-full object-cover blur-3xl opacity-20 scale-110" 
+              className="absolute inset-0 h-full w-full object-cover blur-3xl opacity-20 dark:opacity-30 scale-110" 
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-            <div className="absolute inset-0 bg-grid opacity-20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 dark:via-background/80 to-transparent" />
+            <div className="absolute inset-0 bg-grid opacity-10 dark:opacity-20" />
           </div>
 
           <div className="container relative z-10 py-20">
@@ -67,9 +67,9 @@ const StudioPage = () => {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="h-48 w-48 shrink-0 overflow-hidden rounded-full border-4 border-white/10 bg-surface p-4 shadow-2xl shadow-black/50 backdrop-blur-sm"
+                className="h-48 w-48 shrink-0 overflow-hidden rounded-full border-4 border-white/10 dark:border-white/20 bg-white shadow-2xl shadow-black/50"
               >
-                <img src={studio.logo_url || "/placeholder.svg"} alt={studio.name} className="h-full w-full object-contain" />
+                <img src={studio.logo_url || "/placeholder.svg"} alt={studio.name} className="h-full w-full object-cover rounded-full" />
               </motion.div>
 
               {/* Studio Info */}
@@ -81,7 +81,7 @@ const StudioPage = () => {
                   <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.3em] rounded-full mb-4">
                     Estúdio de Desenvolvimento
                   </span>
-                  <h1 className="font-display text-5xl md:text-7xl lg:text-8xl uppercase leading-none tracking-tighter mb-4">
+                  <h1 className="font-display text-5xl md:text-7xl lg:text-8xl uppercase leading-none tracking-tighter mb-4 text-foreground dark:text-white">
                     {studio.name}
                   </h1>
                   {studio.tagline && (
