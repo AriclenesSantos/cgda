@@ -222,22 +222,22 @@ export default function AdminPage() {
 
                   <label className="flex flex-col gap-1 text-xs md:col-span-2">
                     <span className="uppercase tracking-[0.2em] text-muted-foreground">
-                      {s.type === "ad" ? "URL da imagem (obrigatório)" : "URL de imagem ou vídeo (opcional — sobrepõe a capa)"}
+                      {s.type === "ad" ? "URL da imagem (obrigatório)" : "Media (opcional — sobrepõe o conteúdo automático)"}
                     </span>
                     <input value={s.image_url ?? ""} onChange={(e) => patchSlide(s.id, { image_url: e.target.value })}
-                      placeholder="https://…/imagem.jpg  ou  https://…/trailer.mp4"
+                      placeholder={s.type === "game" ? "Deixe vazio para usar o trailer/capa do jogo automaticamente" : "https://…/imagem.jpg  ou  https://…/trailer.mp4"}
                       className="border border-border bg-surface px-3 py-2 text-sm text-foreground" />
                   </label>
 
                   {s.type !== "ad" && (
                     <>
                       <label className="flex flex-col gap-1 text-xs">
-                        <span className="uppercase tracking-[0.2em] text-muted-foreground">Título (opcional)</span>
+                        <span className="uppercase tracking-[0.2em] text-muted-foreground">Título {s.type === "game" ? "(opcional — sobrepõe o título do jogo)" : "(opcional)"}</span>
                         <input value={s.title ?? ""} onChange={(e) => patchSlide(s.id, { title: e.target.value })}
                           className="border border-border bg-surface px-3 py-2 text-sm text-foreground" />
                       </label>
                       <label className="flex flex-col gap-1 text-xs">
-                        <span className="uppercase tracking-[0.2em] text-muted-foreground">Subtítulo (opcional)</span>
+                        <span className="uppercase tracking-[0.2em] text-muted-foreground">Subtítulo {s.type === "game" ? "(opcional — sobrepõe o género do jogo)" : "(opcional)"}</span>
                         <input value={s.subtitle ?? ""} onChange={(e) => patchSlide(s.id, { subtitle: e.target.value })}
                           className="border border-border bg-surface px-3 py-2 text-sm text-foreground" />
                       </label>

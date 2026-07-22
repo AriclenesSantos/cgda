@@ -122,11 +122,27 @@ function Slide({ item, isActive }: { item: Resolved; isActive: boolean }) {
 
 function Media({ item, isActive }: { item: Resolved; isActive: boolean }) {
   const src = mediaSrc(item);
-  const isVideo = !!src && /\.(mp4|webm|mov)(\?|$)/i.test(src);
+  const isVideoFile = !!src && /\.(mp4|webm|mov)(\?|$)/i.test(src);
+  
+  // Detecção de YouTube/Vimeo para o Hero
+  const getYoutubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+  const getVimeoId = (url: string) => {
+    const regExp = /vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+  };
+
+  const ytId = src ? getYoutubeId(src) : null;
+  const vmId = src ? getVimeoId(src) : null;
+  
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (!isVideo) return;
+    if (!isVideoFile) return;
     const v = videoRef.current;
     if (!v) return;
     if (isActive) {
@@ -135,10 +151,37 @@ function Media({ item, isActive }: { item: Resolved; isActive: boolean }) {
     } else {
       v.pause();
     }
-  }, [isActive, isVideo]);
+  }, [isActive, isVideoFile]);
 
   if (!src) return <div className="absolute inset-0 bg-surface" />;
-  if (isVideo) {
+
+  if (ytId && isActive) {
+    return (
+      <div className="absolute inset-0 h-full w-full pointer-events-none overflow-hidden">
+        <iframe
+          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${ytId}&rel=0&showinfo=0&iv_load_policy=3&modestbranding=1`}
+          className="absolute h-[150%] w-[150%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          allow="autoplay; encrypted-media"
+          title="Hero Video"
+        />
+      </div>
+    );
+  }
+
+  if (vmId && isActive) {
+    return (
+      <div className="absolute inset-0 h-full w-full pointer-events-none overflow-hidden">
+        <iframe
+          src={`https://player.vimeo.com/video/${vmId}?autoplay=1&muted=1&background=1&loop=1`}
+          className="absolute h-[150%] w-[150%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          allow="autoplay; fullscreen"
+          title="Hero Video"
+        />
+      </div>
+    );
+  }
+
+  if (isVideoFile) {
     return (
       <video
         ref={videoRef}
@@ -155,6 +198,7 @@ function Media({ item, isActive }: { item: Resolved; isActive: boolean }) {
       />
     );
   }
+
   return (
     <img
       src={src}
@@ -167,9 +211,8 @@ function Media({ item, isActive }: { item: Resolved; isActive: boolean }) {
 
 function mediaSrc(item: Resolved): string {
   if (item.kind === "game") {
-    // Para o Hero, preferimos ficheiro directo (video de fundo) ou imagem. 
-    // Links externos (YouTube) não funcionam bem como fundo de Hero sem iframe complexo.
-    return item.slide.image_url || item.game.trailer_url || gameCover(item.game);
+    // Prioridade: Imagem do slide (override) > Link externo (YouTube/Vimeo) > Trailer local > Capa do jogo
+    return item.slide.image_url || item.game.trailer_external_url || item.game.trailer_url || gameCover(item.game);
   }
   if (item.kind === "news") return item.slide.image_url || item.news.cover_url || "";
   return item.slide.image_url || "";
