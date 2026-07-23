@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ExternalLink, ArrowLeft, Loader2, Building2, MapPin, Calendar, Globe, Trophy } from "lucide-react";
+import { ExternalLink, ArrowLeft, Loader2, Building2, MapPin, Calendar, Globe, Trophy, Gamepad2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { GameCard } from "@/components/GamesCarousel";
