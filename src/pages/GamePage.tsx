@@ -101,7 +101,7 @@ const GamePage = () => {
                     {game.status}
                   </span>
                   {game.genre && (
-                    <span className="bg-white/10 backdrop-blur-md border border-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white rounded-full">
+                    <span className="bg-foreground/10 dark:bg-white/10 backdrop-blur-md border border-foreground/10 dark:border-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-foreground dark:text-white rounded-full">
                       {game.genre}
                     </span>
                   )}
@@ -110,7 +110,7 @@ const GamePage = () => {
                 <motion.h1 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="font-display text-5xl md:text-7xl lg:text-8xl uppercase leading-none tracking-tighter text-white mb-4 drop-shadow-2xl"
+                  className="font-display text-5xl md:text-7xl lg:text-8xl uppercase leading-none tracking-tighter text-foreground dark:text-white mb-4 drop-shadow-2xl"
                 >
                   {game.title}
                 </motion.h1>
@@ -123,12 +123,12 @@ const GamePage = () => {
                   >
                     <Link 
                       to={`/estudio/${studio.id}`} 
-                      className="group flex items-center gap-3 text-white/90 hover:text-primary transition-colors"
+                      className="group flex items-center gap-3 text-foreground/80 dark:text-white/90 hover:text-primary transition-colors"
                     >
-                      <div className="h-10 w-10 overflow-hidden rounded-full border border-white/30 bg-white/20 p-0.5 backdrop-blur-md">
+                      <div className="h-10 w-10 overflow-hidden rounded-full border border-foreground/20 dark:border-white/30 bg-foreground/10 dark:bg-white/20 p-0.5 backdrop-blur-md">
                         <img src={studio.logo_url || "/placeholder.svg"} alt={studio.name} className="h-full w-full object-cover rounded-full" />
                       </div>
-                      <span className="text-sm uppercase tracking-widest">Desenvolvido por <b className="text-white group-hover:text-primary transition-colors">{studio.name}</b></span>
+                      <span className="text-sm uppercase tracking-widest">Desenvolvido por <b className="text-foreground dark:text-white group-hover:text-primary transition-colors">{studio.name}</b></span>
                     </Link>
                   </motion.div>
                 )}
